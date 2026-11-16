@@ -1,0 +1,9 @@
+name = "jotapg"
+compatibility_date = "2026-11-01"
+pages_build_output_dir = "public"
+
+# Conecta el código con la base de datos. El código la llama "DB".
+[[d1_databases]]
+binding = "DB"
+database_name = "jotapg-db"
+database_id = "PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS"

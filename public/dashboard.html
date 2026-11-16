@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tu panel · .JotaPG</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header bar">
+    <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
+    <button id="logout" class="link-button" type="button">Salir</button>
+  </header>
+
+  <main>
+    <section class="hero small">
+      <h1 id="title">Tu panel</h1>
+      <p>Aquí ves quién ya confirmó.</p>
+    </section>
+
+    <!-- Resumen: tres números -->
+    <section class="summary" aria-label="Resumen">
+      <div><strong id="count-yes">0</strong><span>vienen</span></div>
+      <div><strong id="count-no">0</strong><span>no vienen</span></div>
+      <div><strong id="count-people">0</strong><span>personas en total</span></div>
+    </section>
+
+    <!-- Lista de respuestas -->
+    <section>
+      <h2>Respuestas</h2>
+      <p id="empty" class="muted" hidden>Todavía no hay respuestas.</p>
+      <div class="table-wrap">
+        <table id="table" hidden>
+          <thead>
+            <tr><th>Invitado</th><th>¿Viene?</th><th>Personas</th><th>Comida</th><th>Mensaje</th></tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SOLO PARA PRUEBAS. Borrar junto con functions/api/test-rsvp.js cuando ya no haga falta. -->
+    <section class="soon">
+      <p>Modo de prueba: crea una respuesta falsa para ver cómo se guarda y se muestra.</p>
+      <button id="test" type="button">Crear respuesta de prueba</button>
+    </section>
+  </main>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

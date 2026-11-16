@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar · .JotaPG</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header">
+    <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
+  </header>
+
+  <main>
+    <section class="hero small">
+      <h1>Entrar a tu panel</h1>
+      <p>Escribe el código que te enviamos para ver las confirmaciones de tus invitados.</p>
+    </section>
+
+    <!-- Al enviar el formulario, login.js manda el código a /api/login -->
+    <form id="login-form" class="form">
+      <label for="code">Tu código</label>
+      <input id="code" name="code" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+      <button type="submit">Entrar</button>
+      <p id="error" class="error" role="alert" hidden></p>
+    </form>
+  </main>
+
+  <script src="login.js"></script>
+</body>
+</html>

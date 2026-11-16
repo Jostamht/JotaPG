@@ -2,43 +2,98 @@
 
 Invitaciones web de boda con confirmación de asistencia en línea.
 
-Este repositorio es el sitio de JotaPG. Por ahora es una página sencilla; más adelante
-aquí vivirá también el panel donde cada pareja ve las confirmaciones de sus invitados.
+Cada pareja tiene su propio sitio de invitación. Cuando un invitado confirma, la respuesta
+llega a JotaPG y se guarda en una base de datos. La pareja entra a su panel con un código
+y ve solo sus respuestas.
+
+## Cómo funciona
+
+- **Base de datos:** dos listas, `couples` (las parejas) y `rsvps` (las respuestas).
+- **API (la recepción):** `functions/api/`. Recibe pedidos, los revisa y lee o escribe en la base de datos.
+- **Login:** la pareja escribe su código en `/login`. Si existe, recibe una cookie firmada que dice quién es.
+- **Panel:** `/dashboard` muestra las respuestas de la pareja que entró y de nadie más.
 
 ## Qué hay aquí
 
 ```
-public/
-  index.html   La página (el texto está en español, fácil de cambiar)
-  style.css    Colores, tipografías y espacios
-README.md      Este archivo
+public/                 Lo que se ve en el navegador
+  index.html            Página principal
+  login.html / .js      Entrada con código
+  dashboard.html / .js  Panel de la pareja
+  style.css             Colores y tipografías
+functions/api/          La recepción (código que corre en Cloudflare)
+  login.js              Revisa el código y da la cookie
+  logout.js             Cierra la sesión
+  rsvps.js              Devuelve las respuestas de la pareja
+  rsvp.js               Recibe la confirmación de un invitado (la usarán las invitaciones)
+  test-rsvp.js          SOLO PRUEBAS: crea una respuesta falsa
+lib/session.js          Crea y revisa la cookie de sesión
+schema.sql              Las dos listas de la base de datos
+wrangler.toml           Conecta el código con la base de datos
 ```
 
-Todo lo que se ve en el sitio está dentro de la carpeta `public`.
+## Puesta en marcha (una sola vez)
 
-## Cómo cambiar cosas
+Los comandos se escriben en una terminal, dentro de la carpeta del proyecto.
 
-- **El texto:** abrir `public/index.html` y editar lo que está entre las etiquetas.
-- **Los colores:** arriba de `public/style.css`, en el bloque `:root`.
-- **Las tipografías:** Manrope para el logo y Plus Jakarta Sans para el resto.
+### 1. Crear la base de datos
 
-## Cómo verlo en mi computadora
+```
+npx wrangler d1 create jotapg-db
+```
 
-Abrir `public/index.html` con el navegador. No hace falta instalar nada.
+Copia el `database_id` que aparece y pégalo en `wrangler.toml`, reemplazando
+`PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS`. Sube ese cambio a GitHub.
 
-## Cómo publicarlo en Cloudflare Pages
+### 2. Crear las dos listas
 
-1. Entrar a Cloudflare, ir a **Workers y Pages** y crear un proyecto **Pages**.
-2. Conectar este repositorio de GitHub.
-3. Configurar:
-   - **Comando de build:** dejarlo vacío.
-   - **Directorio de salida:** `public`.
-4. Guardar y desplegar. El sitio queda en `jotapg.pages.dev`.
+```
+npx wrangler d1 execute jotapg-db --remote --file=schema.sql
+```
 
-Cada vez que se sube un cambio a GitHub, Cloudflare lo publica solo.
+### 3. Crear el secreto de las sesiones
 
-## Lo que sigue
+Es un texto largo y privado con el que se firman las cookies. Genera uno:
 
-1. Base de datos y recepción de confirmaciones.
-2. Invitación de prueba.
-3. Panel para las parejas, con login.
+```
+openssl rand -hex 32
+```
+
+En Cloudflare: **Workers y Pages**, tu proyecto, **Settings**, **Variables and Secrets**.
+Agrega una variable de tipo **Secret** llamada `SESSION_SECRET` con ese texto.
+No lo subas a GitHub ni lo compartas.
+
+### 4. Publicar
+
+Cloudflare publica solo cada vez que subes algo a GitHub. Después de agregar el secreto,
+haz un nuevo despliegue para que lo tome.
+
+## Agregar una pareja
+
+```
+npx wrangler d1 execute jotapg-db --remote --command "INSERT INTO couples (invite_id, names, allowed_origin, access_code) VALUES ('prueba', 'Pareja de prueba', 'https://prueba.pages.dev', lower(hex(randomblob(8))))"
+```
+
+Cambia `invite_id`, el nombre y la dirección de su invitación. El código se crea solo.
+Para verlo y enviárselo a la pareja:
+
+```
+npx wrangler d1 execute jotapg-db --remote --command "SELECT names, access_code FROM couples"
+```
+
+## Probar que todo funciona
+
+1. Abre `jotapg.pages.dev/login` y escribe el código de la pareja de prueba.
+2. En el panel, presiona **Crear respuesta de prueba** unas cuantas veces.
+3. Deben aparecer en la tabla y en los números de arriba.
+
+Cuando termines de probar, borra `functions/api/test-rsvp.js` y el bloque
+"Modo de prueba" de `public/dashboard.html`.
+
+## Cosas a tener en cuenta
+
+- El código de acceso funciona como una contraseña: quien lo tenga ve las respuestas de esa pareja.
+  Se envía en privado a cada pareja.
+- La sesión dura 7 días.
+- Todavía falta: la invitación de prueba que conecte con `/api/rsvp`, y el captcha (Turnstile)
+  para evitar respuestas falsas antes de usarlo con parejas reales.
