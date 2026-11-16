@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>.JotaPG · Invitaciones web de boda</title>
+  <meta name="description" content="Invitaciones web de boda con confirmación de asistencia en línea.">
+
+  <!-- Tipografías: Manrope para el logo, Plus Jakarta Sans para el resto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- 1. Encabezado: el logo -->
+  <header class="header">
+    <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
+  </header>
+
+  <main>
+
+    <!-- 2. Portada: qué hacemos, en una frase -->
+    <section class="hero">
+      <h1>Invitaciones web de boda.</h1>
+      <p>Tus invitados confirman desde el celular y tú ves quién viene en un solo lugar.</p>
+    </section>
+
+    <!-- 3. Cómo funciona: tres pasos -->
+    <section class="steps">
+      <h2>Cómo funciona</h2>
+      <ol>
+        <li>
+          <strong>Creamos tu invitación.</strong>
+          Un sitio propio con los datos y las fotos de tu boda.
+        </li>
+        <li>
+          <strong>Tus invitados confirman.</strong>
+          Entran al link, responden y listo.
+        </li>
+        <li>
+          <strong>Tú ves las respuestas.</strong>
+          En tu panel: quién viene, cuántos son y qué comen.
+        </li>
+      </ol>
+    </section>
+
+    <!-- 4. Aviso: el sitio está en construcción -->
+    <section class="soon">
+      <p>Estamos armando la marca. Muy pronto, más novedades.</p>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <small>&copy; <span id="year"></span> .JotaPG</small>
+  </footer>
+
+  <script>
+    // Pone el año actual en el pie de página
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
