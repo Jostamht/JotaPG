@@ -42,8 +42,8 @@ Los comandos se escriben en una terminal, dentro de la carpeta del proyecto.
 npx wrangler d1 create jotapg-db
 ```
 
-Copia el `database_id` que aparece y pégalo en `wrangler.toml`, reemplazando
-`PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS`. Sube ese cambio a GitHub.
+Copia el `database_id` que aparece y pégalo en `wrangler.toml`, en la línea `database_id`.
+Sube ese cambio a GitHub. (Ya está puesto el de la base de datos actual.)
 
 ### 2. Crear las dos listas
 
