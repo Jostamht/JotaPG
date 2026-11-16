@@ -6,4 +6,4 @@ pages_build_output_dir = "public"
 [[d1_databases]]
 binding = "DB"
 database_name = "jotapg-db"
-database_id = "PEGA-AQUI-EL-ID-DE-TU-BASE-DE-DATOS"
+database_id = "881cccd0-5d4f-4182-809b-a5ee3ed52b19"
