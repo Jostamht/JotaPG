@@ -19,26 +19,41 @@
   <main>
     <section class="hero small">
       <h1 id="title">Tu panel</h1>
-      <p>Aquí ves quién ya confirmó.</p>
+      <p>Aquí ves quién ya confirmó y quién falta.</p>
     </section>
 
-    <!-- Resumen: tres números -->
+    <!-- Resumen: cuatro números -->
     <section class="summary" aria-label="Resumen">
-      <div><strong id="count-yes">0</strong><span>vienen</span></div>
+      <div><strong id="count-yes">0</strong><span>confirmaron</span></div>
       <div><strong id="count-no">0</strong><span>no vienen</span></div>
-      <div><strong id="count-people">0</strong><span>personas en total</span></div>
+      <div><strong id="count-pending">0</strong><span>sin responder</span></div>
+      <div><strong id="count-people">0</strong><span>personas confirmadas</span></div>
     </section>
 
-    <!-- Lista de respuestas -->
+    <!-- Lista de invitados con su estado -->
     <section>
-      <h2>Respuestas</h2>
-      <p id="empty" class="muted" hidden>Todavía no hay respuestas.</p>
+      <h2>Invitados</h2>
+      <p id="empty" class="muted" hidden>Todavía no hay invitados en la lista.</p>
       <div class="table-wrap">
         <table id="table" hidden>
           <thead>
-            <tr><th>Invitado</th><th>¿Viene?</th><th>Personas</th><th>Comida</th><th>Mensaje</th></tr>
+            <tr><th>Invitado</th><th>Estado</th><th>Personas</th><th>Comida</th><th>Mensaje</th></tr>
           </thead>
           <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Respuestas que no están en la lista de invitados -->
+    <section id="others-section" hidden>
+      <h2>Otras respuestas</h2>
+      <p class="muted">Respuestas que no corresponden a ningún invitado de la lista.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Nombre</th><th>¿Viene?</th><th>Personas</th><th>Comida</th><th>Mensaje</th></tr>
+          </thead>
+          <tbody id="others-rows"></tbody>
         </table>
       </div>
     </section>
