@@ -22,6 +22,14 @@ export async function onRequestPost({ request, env }) {
 
   if (!couple) return jsonResponse({ error: "wrong_code" }, 401);
 
-  const cookie = await makeSessionCookie(env, couple.invite_id);
-  return jsonResponse({ ok: true }, 200, { "Set-Cookie": cookie });
+  try {
+    const cookie = await makeSessionCookie(env, couple.invite_id);
+    return jsonResponse({ ok: true }, 200, { "Set-Cookie": cookie });
+  } catch (err) {
+    // El código era correcto pero no se pudo crear la sesión.
+    // Casi siempre es porque falta el secreto SESSION_SECRET en Cloudflare.
+    console.error("login: no se pudo crear la sesión:", err.message);
+    const code = String(err.message).includes("SESSION_SECRET") ? "missing_secret" : "session_error";
+    return jsonResponse({ error: code }, 500);
+  }
 }
