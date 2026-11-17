@@ -59,9 +59,22 @@ Es un texto largo y privado con el que se firman las cookies. Genera uno:
 openssl rand -hex 32
 ```
 
-En Cloudflare: **Workers y Pages**, tu proyecto, **Settings**, **Variables and Secrets**.
-Agrega una variable de tipo **Secret** llamada `SESSION_SECRET` con ese texto.
-No lo subas a GitHub ni lo compartas.
+Hay dos formas de guardarlo; basta con una.
+
+**Opción A: en la base de datos** (no depende de la configuración de Cloudflare). En la consola de `jotapg-db`:
+
+```
+CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+INSERT INTO settings (key, value) VALUES ('session_secret', lower(hex(randomblob(32))));
+```
+
+El secreto se crea solo dentro de la base de datos y nadie lo ve.
+
+**Opción B: en Cloudflare.** **Workers y Pages**, tu proyecto, **Settings**, **Variables and Secrets**.
+Agrega una variable de tipo **Secret** llamada `SESSION_SECRET` con el texto de arriba.
+Si existe, tiene prioridad sobre la opción A.
+
+No subas el secreto a GitHub ni lo compartas.
 
 ### 4. Publicar
 

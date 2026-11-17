@@ -26,3 +26,9 @@ CREATE TABLE IF NOT EXISTS rsvps (
 );
 
 CREATE INDEX IF NOT EXISTS idx_rsvps_invite ON rsvps(invite_id);
+
+-- Ajustes privados del sitio (por ejemplo, el secreto con el que se firman las sesiones)
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
