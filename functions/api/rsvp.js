@@ -75,13 +75,19 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "text_too_long" }, 400, origin);
   }
 
-  await env.DB
-    .prepare(
-      `INSERT INTO rsvps (invite_id, guest_name, attending, guests_count, dietary, message)
-       VALUES (?, ?, ?, ?, ?, ?)`
-    )
-    .bind(inviteId, guestName, attending, guestsCount, dietary || null, message || null)
-    .run();
+  // Si el mismo invitado vuelve a confirmar (por ejemplo, cambió de opinión),
+  // su respuesta anterior se reemplaza para que no cuente doble.
+  await env.DB.batch([
+    env.DB
+      .prepare("DELETE FROM rsvps WHERE invite_id = ? AND guest_name = ?")
+      .bind(inviteId, guestName),
+    env.DB
+      .prepare(
+        `INSERT INTO rsvps (invite_id, guest_name, attending, guests_count, dietary, message)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      )
+      .bind(inviteId, guestName, attending, guestsCount, dietary || null, message || null),
+  ]);
 
   return json({ ok: true }, 201, origin);
 }
