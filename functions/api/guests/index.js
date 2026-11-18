@@ -1,5 +1,5 @@
 // POST /api/guests — agrega uno o varios invitados a la boda.
-// Cuerpo: { guests: [ { line, name, passes, phone_last4 }, ... ] }
+// Cuerpo: { guests: [ { line, name, passes, phone }, ... ] }
 // Los que están bien se guardan; de los demás se devuelve el motivo (con su "line"
 // para que la pantalla pueda decir cuál línea falló).
 
@@ -58,8 +58,8 @@ export async function onRequestPost({ request, env }) {
     await env.DB.batch(
       toInsert.slice(i, i + CHUNK).map((g) =>
         env.DB
-          .prepare("INSERT INTO guests (invite_id, name, passes, phone_last4) VALUES (?, ?, ?, ?)")
-          .bind(couple.invite_id, g.name, g.passes, g.phone_last4)
+          .prepare("INSERT INTO guests (invite_id, name, passes, phone) VALUES (?, ?, ?, ?)")
+          .bind(couple.invite_id, g.name, g.passes, g.phone)
       )
     );
   }

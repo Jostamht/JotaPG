@@ -1,7 +1,7 @@
 // POST /api/rsvp — recibe la confirmación de un invitado desde el sitio de una pareja.
 // El CORS se valida contra el dominio registrado de cada pareja (tabla couples).
 // El invitado se valida contra la lista de la pareja (tabla guests): nombre,
-// últimos 4 dígitos del celular y cantidad de pases.
+// número de celular completo y cantidad de pases.
 
 import {
   handleOptions,
@@ -10,6 +10,7 @@ import {
   getGuests,
   findGuest,
 } from "../../lib/invite-api.js";
+import { phonesMatch } from "../../lib/guests.js";
 
 const MAX = { name: 100, dietary: 300, message: 500 };
 
@@ -33,7 +34,7 @@ export async function onRequestPost({ request, env }) {
   if (!couple) return json({ error: "forbidden" }, 403);
 
   const typedName = String(data.guest_name ?? "").trim();
-  const phone = String(data.phone_last4 ?? "").trim();
+  const phone = String(data.phone ?? "").trim();
   const dietary = String(data.dietary ?? "").trim();
   const message = String(data.message ?? "").trim();
   const attending = data.attending === true || data.attending === 1 ? 1 : 0;
@@ -51,7 +52,7 @@ export async function onRequestPost({ request, env }) {
   const { guest } = findGuest(await getGuests(env, inviteId), typedName);
   if (!guest) return json({ error: "guest_not_found" }, 404, origin);
 
-  if (phone !== guest.phone_last4) {
+  if (!phonesMatch(guest.phone, phone)) {
     return json({ error: "wrong_phone" }, 403, origin);
   }
 

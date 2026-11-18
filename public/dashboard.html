@@ -43,8 +43,8 @@
         <label>Pases
           <select id="add-passes"></select>
         </label>
-        <label>Últimos 4 del celular
-          <input id="add-phone" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234" autocomplete="off" required>
+        <label>Celular
+          <input id="add-phone" type="text" inputmode="tel" maxlength="20" placeholder="71234567" autocomplete="off" required>
         </label>
         <button type="submit">Agregar</button>
       </form>
@@ -52,8 +52,8 @@
 
       <details>
         <summary>Agregar varios a la vez</summary>
-        <p class="muted">Una línea por invitado: nombre y apellido, pases y últimos 4 dígitos del celular, separados por coma. También puedes pegar directo desde Excel o Google Sheets.</p>
-        <textarea id="bulk-text" spellcheck="false" placeholder="Juan Pérez, 2, 1234&#10;Ruth Gómez, 3, 5678&#10;Mario Ríos, 1, 9999"></textarea>
+        <p class="muted">Una línea por invitado: nombre y apellido, pases y celular completo, separados por coma. También puedes pegar directo desde Excel o Google Sheets.</p>
+        <textarea id="bulk-text" spellcheck="false" placeholder="Juan Pérez, 2, 71234567&#10;Ruth Gómez, 3, 75678901&#10;Mario Ríos, 1, 76543210"></textarea>
         <button id="bulk-add" type="button">Agregar todos</button>
         <div id="bulk-feedback" class="feedback" role="status"></div>
       </details>
@@ -106,8 +106,8 @@
       <label>Pases
         <select id="edit-passes"></select>
       </label>
-      <label>Últimos 4 del celular
-        <input id="edit-phone" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" required>
+      <label>Celular
+        <input id="edit-phone" type="text" inputmode="tel" maxlength="20" autocomplete="off" required>
       </label>
       <p id="edit-feedback" class="feedback bad" role="alert"></p>
       <div class="dialog-actions">

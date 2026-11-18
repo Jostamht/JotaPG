@@ -14,7 +14,7 @@ export async function onRequestGet({ request, env }) {
   // Todos los invitados de la lista, con su respuesta si ya la enviaron.
   const { results: rows } = await env.DB
     .prepare(
-      `SELECT g.id, g.name, g.passes, g.phone_last4,
+      `SELECT g.id, g.name, g.passes, g.phone,
               r.attending, r.guests_count, r.dietary, r.message, r.created_at
        FROM guests g
        LEFT JOIN rsvps r ON r.guest_id = g.id
@@ -28,7 +28,7 @@ export async function onRequestGet({ request, env }) {
     id: r.id,
     name: r.name,
     passes: r.passes,
-    phone_last4: r.phone_last4,
+    phone: r.phone,
     status: r.attending === null ? "pending" : r.attending === 1 ? "confirmed" : "declined",
     guests_count: r.attending === 1 ? r.guests_count : 0,
     dietary: r.dietary,

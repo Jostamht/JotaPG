@@ -49,8 +49,8 @@ export async function onRequestPut({ request, env, params }) {
 
   await env.DB.batch([
     env.DB
-      .prepare("UPDATE guests SET name = ?, passes = ?, phone_last4 = ? WHERE id = ? AND invite_id = ?")
-      .bind(guest.name, guest.passes, guest.phone_last4, id, couple.invite_id),
+      .prepare("UPDATE guests SET name = ?, passes = ?, phone = ? WHERE id = ? AND invite_id = ?")
+      .bind(guest.name, guest.passes, guest.phone, id, couple.invite_id),
     // La respuesta guarda también el nombre; se mantiene al día.
     env.DB.prepare("UPDATE rsvps SET guest_name = ? WHERE guest_id = ?").bind(guest.name, id),
   ]);

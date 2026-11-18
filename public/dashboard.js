@@ -15,7 +15,7 @@ const MENSAJES = {
   invalid_name: "Falta el nombre.",
   name_needs_surname: "Escribe nombre y apellido, así lo encuentran en la invitación.",
   invalid_passes: "Los pases deben ser un número del 1 al 10.",
-  invalid_phone: "Faltan los últimos 4 dígitos del celular.",
+  invalid_phone: "Escribe el número de celular completo (de 7 a 15 dígitos). Es lo que el invitado usa para confirmar.",
   duplicate_name: "Ya hay un invitado con ese nombre. Agrega un apellido o una inicial para distinguirlos.",
   guest_limit: "Se llegó al máximo de 1000 invitados por boda.",
   too_many: "Son demasiados a la vez. Agrégalos en grupos de 500.",
@@ -90,6 +90,8 @@ function boton(texto, clases, alHacerClic, etiqueta) {
 
 function notas(g) {
   const partes = [];
+  // Invitados cargados cuando bastaban los últimos 4 dígitos: hay que completar el número.
+  if (g.phone.replace(/\D/g, "").length < 7) partes.push("⚠ Falta el celular completo");
   if (g.dietary) partes.push("Comida: " + g.dietary);
   if (g.message) partes.push("“" + g.message + "”");
   return partes.join(" · ") || "—";
@@ -211,9 +213,11 @@ function mostrar(elemento, texto, tipo) {
   elemento.textContent = texto;
 }
 
-document.getElementById("add-phone").addEventListener("input", (e) => {
-  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
-});
+// Se aceptan espacios, guiones y el +; el servidor se queda solo con los dígitos.
+function limpiarCelular(e) {
+  e.target.value = e.target.value.replace(/[^\d+\s()-]/g, "");
+}
+document.getElementById("add-phone").addEventListener("input", limpiarCelular);
 
 document.getElementById("add-form").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -226,7 +230,7 @@ document.getElementById("add-form").addEventListener("submit", async (event) => 
   enviar.disabled = true;
   mostrar(aviso, "Agregando…");
   const { ok, datos } = await pedir("/api/guests", "POST", {
-    guests: [{ line: 1, name: nombre.value, passes: pases.value, phone_last4: celular.value }],
+    guests: [{ line: 1, name: nombre.value, passes: pases.value, phone: celular.value }],
   });
   enviar.disabled = false;
 
@@ -259,7 +263,7 @@ function leerLineas(texto) {
       original,
       name: partes[0],
       passes: partes[1] === undefined || partes[1] === "" ? 1 : partes[1],
-      phone_last4: partes[2] ?? "",
+      phone: partes[2] ?? "",
     });
   });
   return filas;
@@ -276,7 +280,7 @@ document.getElementById("bulk-add").addEventListener("click", async (event) => {
   const { ok, datos } = await pedir(
     "/api/guests",
     "POST",
-    { guests: filas.map(({ line, name, passes, phone_last4 }) => ({ line, name, passes, phone_last4 })) }
+    { guests: filas.map(({ line, name, passes, phone }) => ({ line, name, passes, phone })) }
   );
   event.target.disabled = false;
 
@@ -321,14 +325,12 @@ function abrirEdicion(g) {
   editando = g;
   document.getElementById("edit-name").value = g.name;
   llenarPases(document.getElementById("edit-passes"), g.passes);
-  document.getElementById("edit-phone").value = g.phone_last4;
+  document.getElementById("edit-phone").value = g.phone;
   document.getElementById("edit-feedback").textContent = "";
   dialogo.showModal();
 }
 
-document.getElementById("edit-phone").addEventListener("input", (e) => {
-  e.target.value = e.target.value.replace(/\D/g, "").slice(0, 4);
-});
+document.getElementById("edit-phone").addEventListener("input", limpiarCelular);
 document.getElementById("edit-cancel").addEventListener("click", () => dialogo.close());
 
 document.getElementById("edit-form").addEventListener("submit", async (event) => {
@@ -341,7 +343,7 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
   const { ok, datos } = await pedir(`/api/guests/${editando.id}`, "PUT", {
     name: document.getElementById("edit-name").value,
     passes: document.getElementById("edit-passes").value,
-    phone_last4: document.getElementById("edit-phone").value,
+    phone: document.getElementById("edit-phone").value,
   });
   guardar.disabled = false;
 

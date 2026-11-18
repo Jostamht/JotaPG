@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS guests (
   invite_id   TEXT NOT NULL REFERENCES couples(invite_id),  -- a qué pareja pertenece
   name        TEXT NOT NULL,                                -- como aparece en su invitación
   passes      INTEGER NOT NULL DEFAULT 1 CHECK (passes BETWEEN 1 AND 10),  -- pases disponibles
-  phone_last4 TEXT NOT NULL CHECK (length(phone_last4) = 4),               -- últimos 4 dígitos del celular
+  phone       TEXT NOT NULL CHECK (length(phone) BETWEEN 4 AND 20),        -- celular completo, solo dígitos
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE (invite_id, name)
 );
