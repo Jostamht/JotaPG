@@ -17,9 +17,12 @@
   </header>
 
   <main>
+    <!-- Solo lo ve el administrador cuando abre la boda de una pareja -->
+    <p id="admin-banner" class="banner" hidden></p>
+
     <section class="hero small">
       <h1 id="title">Tu panel</h1>
-      <p>Aquí ves quién ya confirmó y quién falta.</p>
+      <p>Aquí ves quién ya confirmó, quién falta, y manejas tu lista de invitados.</p>
     </section>
 
     <!-- Resumen: cuatro números -->
@@ -30,18 +33,46 @@
       <div><strong id="count-people">0</strong><span>personas confirmadas</span></div>
     </section>
 
+    <!-- Agregar invitados -->
+    <section class="panel" aria-labelledby="add-title">
+      <h2 id="add-title">Agregar invitado</h2>
+      <form id="add-form" class="row-form">
+        <label class="wide">Nombre y apellido
+          <input id="add-name" type="text" maxlength="100" placeholder="Juan Pérez" autocomplete="off" required>
+        </label>
+        <label>Pases
+          <select id="add-passes"></select>
+        </label>
+        <label>Últimos 4 del celular
+          <input id="add-phone" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="1234" autocomplete="off" required>
+        </label>
+        <button type="submit">Agregar</button>
+      </form>
+      <p id="add-feedback" class="feedback" role="status"></p>
+
+      <details>
+        <summary>Agregar varios a la vez</summary>
+        <p class="muted">Una línea por invitado: nombre y apellido, pases y últimos 4 dígitos del celular, separados por coma. También puedes pegar directo desde Excel o Google Sheets.</p>
+        <textarea id="bulk-text" spellcheck="false" placeholder="Juan Pérez, 2, 1234&#10;Ruth Gómez, 3, 5678&#10;Mario Ríos, 1, 9999"></textarea>
+        <button id="bulk-add" type="button">Agregar todos</button>
+        <div id="bulk-feedback" class="feedback" role="status"></div>
+      </details>
+    </section>
+
     <!-- Lista de invitados con su estado -->
     <section>
       <h2>Invitados</h2>
-      <p id="empty" class="muted" hidden>Todavía no hay invitados en la lista.</p>
+      <p id="empty" class="muted" hidden>Todavía no hay invitados en la lista. Agrégalos arriba.</p>
+      <input id="filter" class="search" type="search" placeholder="Buscar invitado" aria-label="Buscar invitado" hidden>
       <div class="table-wrap">
-        <table id="table" hidden>
+        <table id="table" class="guests" hidden>
           <thead>
-            <tr><th>Invitado</th><th>Estado</th><th>Personas</th><th>Comida</th><th>Mensaje</th></tr>
+            <tr><th>Invitado</th><th>Pases</th><th>Estado</th><th>Personas</th><th>Notas</th><th><span class="sr-only">Acciones</span></th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
+      <p id="no-match" class="muted" hidden>Nadie coincide con esa búsqueda.</p>
     </section>
 
     <!-- Respuestas que no están en la lista de invitados -->
@@ -59,11 +90,32 @@
     </section>
 
     <!-- SOLO PARA PRUEBAS. Borrar junto con functions/api/test-rsvp.js cuando ya no haga falta. -->
-    <section class="soon">
+    <section id="test-section" class="soon">
       <p>Modo de prueba: crea una respuesta falsa para ver cómo se guarda y se muestra.</p>
       <button id="test" type="button">Crear respuesta de prueba</button>
     </section>
   </main>
+
+  <!-- Editar un invitado -->
+  <dialog id="edit-dialog" aria-labelledby="edit-title">
+    <form id="edit-form" class="stack">
+      <h2 id="edit-title">Editar invitado</h2>
+      <label>Nombre y apellido
+        <input id="edit-name" type="text" maxlength="100" autocomplete="off" required>
+      </label>
+      <label>Pases
+        <select id="edit-passes"></select>
+      </label>
+      <label>Últimos 4 del celular
+        <input id="edit-phone" type="text" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="off" required>
+      </label>
+      <p id="edit-feedback" class="feedback bad" role="alert"></p>
+      <div class="dialog-actions">
+        <button id="edit-cancel" class="btn-ghost" type="button">Cancelar</button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
 
   <script src="dashboard.js"></script>
 </body>

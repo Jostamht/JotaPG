@@ -48,3 +48,7 @@ CREATE TABLE IF NOT EXISTS settings (
   key   TEXT PRIMARY KEY,
   value TEXT NOT NULL
 );
+
+-- Tu clave de administrador (al azar). Para verla:
+--   SELECT value FROM settings WHERE key = 'admin_code';
+INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_code', lower(hex(randomblob(16))));

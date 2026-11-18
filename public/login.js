@@ -16,11 +16,12 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({ code }),
     });
 
+    const body = await res.json().catch(() => ({}));
     if (res.ok) {
-      window.location.href = "/dashboard";
+      // El administrador va a su página; las parejas, a su panel.
+      window.location.href = body.role === "admin" ? "/admin" : "/dashboard";
       return;
     }
-    const body = await res.json().catch(() => ({}));
     if (res.status === 401) {
       errorBox.textContent = "Ese código no es correcto. Revísalo e inténtalo de nuevo.";
     } else if (body.error === "missing_secret") {

@@ -1,29 +1,25 @@
 // GET /api/rsvps
-// Devuelve todos los invitados de la pareja que inició sesión, cada uno con su estado:
-// pendiente, confirmado o no viene. Solo los de ella: el invite_id sale de la cookie,
-// no de lo que mande el navegador.
+// Devuelve todos los invitados de la boda con su estado: pendiente, confirmado o no viene.
+// Una pareja solo ve los suyos (el invite_id sale de la cookie, no de lo que mande el
+// navegador). El administrador indica la boda con ?c=invite_id.
 
-import { getSession, jsonResponse } from "../../lib/session.js";
+import { jsonResponse } from "../../lib/session.js";
+import { resolveInvite } from "../../lib/auth.js";
 
 export async function onRequestGet({ request, env }) {
-  const inviteId = await getSession(request, env);
-  if (!inviteId) return jsonResponse({ error: "not_logged_in" }, 401);
-
-  const couple = await env.DB
-    .prepare("SELECT names FROM couples WHERE invite_id = ?")
-    .bind(inviteId)
-    .first();
-  if (!couple) return jsonResponse({ error: "not_logged_in" }, 401);
+  const { error, auth, couple } = await resolveInvite(request, env);
+  if (error) return error;
+  const inviteId = couple.invite_id;
 
   // Todos los invitados de la lista, con su respuesta si ya la enviaron.
   const { results: rows } = await env.DB
     .prepare(
-      `SELECT g.id, g.name, g.passes,
+      `SELECT g.id, g.name, g.passes, g.phone_last4,
               r.attending, r.guests_count, r.dietary, r.message, r.created_at
        FROM guests g
        LEFT JOIN rsvps r ON r.guest_id = g.id
        WHERE g.invite_id = ?
-       ORDER BY g.name`
+       ORDER BY g.name COLLATE NOCASE`
     )
     .bind(inviteId)
     .all();
@@ -32,6 +28,7 @@ export async function onRequestGet({ request, env }) {
     id: r.id,
     name: r.name,
     passes: r.passes,
+    phone_last4: r.phone_last4,
     status: r.attending === null ? "pending" : r.attending === 1 ? "confirmed" : "declined",
     guests_count: r.attending === 1 ? r.guests_count : 0,
     dietary: r.dietary,
@@ -49,5 +46,11 @@ export async function onRequestGet({ request, env }) {
     .bind(inviteId)
     .all();
 
-  return jsonResponse({ names: couple.names, guests, others });
+  return jsonResponse({
+    role: auth.role,
+    invite_id: inviteId,
+    names: couple.names,
+    guests,
+    others,
+  });
 }

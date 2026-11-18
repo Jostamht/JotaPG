@@ -117,7 +117,7 @@ button:hover { background: var(--violeta); }
 h2 { font-size: 1.25rem; }
 .muted { color: var(--gris); }
 
-.table-wrap { overflow-x: auto; margin-bottom: 48px; }
+.table-wrap { overflow-x: auto; margin-bottom: 48px; position: relative; }
 table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
 th, td { text-align: left; padding: 10px 12px 10px 0; border-bottom: 1px solid var(--linea); }
 th { color: var(--gris); font-weight: 600; }
@@ -126,3 +126,110 @@ th { color: var(--gris); font-weight: 600; }
 
 .enter { color: var(--gris); text-decoration: none; font-weight: 600; }
 .enter:hover { color: var(--violeta); }
+
+/* ---------- Gestión de invitados y administración ---------- */
+select, textarea {
+  font: inherit;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  background: var(--blanco);
+}
+select:focus-visible, textarea:focus-visible { outline: 2px solid var(--violeta); outline-offset: 2px; }
+textarea { width: 100%; min-height: 140px; resize: vertical; }
+
+.panel { border: 1px solid var(--linea); border-radius: 12px; padding: 20px; margin-bottom: 32px; }
+.panel h2 { margin-top: 0; }
+
+.row-form { display: grid; grid-template-columns: 2fr 0.8fr 1.1fr auto; gap: 12px; align-items: end; }
+.stack { display: grid; gap: 12px; }
+.row-form label, .stack label, dialog label { display: grid; gap: 4px; font-weight: 600; font-size: 0.9rem; }
+.row-form input, .row-form select, .stack input, dialog input, dialog select { width: 100%; }
+
+.feedback { margin: 12px 0 0; min-height: 1.4em; }
+.feedback.ok { color: #0a7a3c; }
+.feedback.bad { color: #b00020; }
+.problems { margin: 8px 0 0; padding-left: 1.2rem; color: #b00020; }
+
+details summary { cursor: pointer; font-weight: 600; margin-top: 16px; }
+details[open] summary { margin-bottom: 8px; }
+details textarea { margin-bottom: 12px; }
+
+.btn-small { padding: 6px 12px; font-size: 0.85rem; }
+.btn-ghost { background: none; color: var(--negro); border: 1px solid #cfcfcf; }
+.btn-ghost:hover { background: #f4f0ff; color: var(--negro); }
+.btn-danger { background: none; color: #b00020; border: 1px solid #f0c9cf; }
+.btn-danger:hover { background: #b00020; color: var(--blanco); }
+a.btn-small {
+  display: inline-block; padding: 6px 12px; font-size: 0.85rem; font-weight: 600;
+  border-radius: 8px; text-decoration: none; background: var(--negro); color: var(--blanco);
+}
+a.btn-small:hover { background: var(--violeta); }
+
+.actions { white-space: nowrap; text-align: right; padding-right: 0; }
+.actions button { margin-left: 6px; }
+
+.search { width: 100%; max-width: 280px; margin: 0 0 12px; }
+
+.pill { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.8rem; font-weight: 600; white-space: nowrap; }
+.pill.confirmed { background: #e6f6ec; color: #0a7a3c; }
+.pill.declined { background: #fdecee; color: #b00020; }
+.pill.pending { background: #f1f1f1; color: var(--gris); }
+
+dialog {
+  border: 0; border-radius: 12px; padding: 24px;
+  max-width: 420px; width: calc(100% - 32px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
+dialog h2 { margin-top: 0; }
+.dialog-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+
+.banner { margin-bottom: 8px; }
+.banner a { color: var(--violeta); font-weight: 600; text-decoration: none; }
+
+/* Bodas (página de administración) */
+.wedding { border: 1px solid var(--linea); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.wedding h3 { margin: 0 0 2px; font-size: 1.15rem; }
+.wedding .meta { color: var(--gris); font-size: 0.9rem; margin: 0; word-break: break-all; }
+.wedding .stats { margin: 12px 0 0; }
+.wedding .code-line { margin: 12px 0 0; }
+.wedding .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; background: #f4f0ff; padding: 2px 8px; border-radius: 6px; }
+.snippet {
+  background: var(--negro); color: #f4f0ff; padding: 14px; border-radius: 8px;
+  overflow-x: auto; font-size: 0.85rem; white-space: pre; margin: 8px 0;
+}
+.result { border-left: 3px solid var(--violeta); background: #faf7ff; padding: 16px 20px; margin-top: 16px; border-radius: 0 8px 8px 0; }
+.result p { margin: 0 0 8px; }
+
+@media (max-width: 600px) {
+  .row-form { grid-template-columns: 1fr 1fr; }
+  .row-form .wide { grid-column: 1 / -1; }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+/* La lista de invitados en pantallas chicas: cada fila es una tarjeta,
+   para que los botones Editar y Eliminar siempre se vean. */
+@media (max-width: 600px) {
+  .guests thead { display: none; }
+  .guests, .guests tbody { display: block; }
+  .guests tr {
+    display: grid; grid-template-columns: 1fr auto; gap: 2px 12px;
+    padding: 14px 0; border-bottom: 1px solid var(--linea);
+  }
+  .guests td { border: 0; padding: 0; }
+  .guests td:nth-child(1) { font-weight: 600; grid-column: 1; }
+  .guests td:nth-child(3) { grid-column: 2; grid-row: 1; justify-self: end; }
+  .guests td:nth-child(2), .guests td:nth-child(4), .guests td:nth-child(5) {
+    grid-column: 1 / -1; color: var(--gris); font-size: 0.9rem;
+  }
+  .guests td[data-label]::before { content: attr(data-label) ": "; }
+  .guests td.empty { display: none; }
+  .guests td.actions { grid-column: 1 / -1; text-align: left; margin-top: 8px; }
+  .guests td.actions button { margin: 0 8px 0 0; }
+}

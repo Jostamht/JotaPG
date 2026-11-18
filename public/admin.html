@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Administrar · .JotaPG</title>
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="header bar">
+    <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
+    <button id="logout" class="link-button" type="button">Salir</button>
+  </header>
+
+  <main>
+    <section class="hero small">
+      <h1>Todas las bodas</h1>
+      <p>Aquí creas cada boda y manejas sus invitados. Los novios solo ven la suya.</p>
+    </section>
+
+    <!-- Aviso de lo que se hizo (código nuevo, boda borrada, etc.) -->
+    <p id="flash" class="feedback" role="status"></p>
+
+    <!-- Crear una boda -->
+    <section class="panel" aria-labelledby="new-title">
+      <h2 id="new-title">Nueva boda</h2>
+      <form id="new-form" class="stack">
+        <label>Nombres de la pareja
+          <input id="new-names" type="text" maxlength="100" placeholder="Juan y Carla" autocomplete="off" required>
+        </label>
+        <label>Dirección de su invitación
+          <input id="new-origin" type="text" placeholder="https://juancarla.pages.dev" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+        </label>
+        <details>
+          <summary>Opciones avanzadas</summary>
+          <label>Nombre corto (opcional)
+            <input id="new-id" type="text" maxlength="40" placeholder="juan-y-carla" autocomplete="off" autocapitalize="none" spellcheck="false">
+          </label>
+          <p class="muted">Si lo dejas vacío, se crea solo a partir de los nombres.</p>
+        </details>
+        <div><button type="submit">Crear boda</button></div>
+      </form>
+      <p id="new-feedback" class="feedback bad" role="alert"></p>
+
+      <!-- Lo que se muestra después de crear una boda -->
+      <div id="new-result" class="result" hidden></div>
+    </section>
+
+    <!-- Lista de bodas -->
+    <section>
+      <h2>Bodas</h2>
+      <p id="empty" class="muted" hidden>Todavía no hay bodas. Crea la primera arriba.</p>
+      <div id="weddings"></div>
+    </section>
+  </main>
+
+  <!-- Editar nombres o dirección -->
+  <dialog id="edit-dialog" aria-labelledby="edit-title">
+    <form id="edit-form" class="stack">
+      <h2 id="edit-title">Editar boda</h2>
+      <label>Nombres de la pareja
+        <input id="edit-names" type="text" maxlength="100" autocomplete="off" required>
+      </label>
+      <label>Dirección de su invitación
+        <input id="edit-origin" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" required>
+      </label>
+      <p id="edit-feedback" class="feedback bad" role="alert"></p>
+      <div class="dialog-actions">
+        <button id="edit-cancel" class="btn-ghost" type="button">Cancelar</button>
+        <button type="submit">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="admin.js"></script>
+</body>
+</html>
