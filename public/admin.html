@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="pc">
   <header class="header bar">
     <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
     <button id="logout" class="link-button" type="button">Salir</button>
@@ -25,6 +25,8 @@
     <!-- Aviso de lo que se hizo (código nuevo, boda borrada, etc.) -->
     <p id="flash" class="feedback" role="status"></p>
 
+    <div class="cols">
+      <aside class="side">
     <!-- Crear una boda -->
     <section class="panel" aria-labelledby="new-title">
       <h2 id="new-title">Nueva boda</h2>
@@ -49,13 +51,17 @@
       <!-- Lo que se muestra después de crear una boda -->
       <div id="new-result" class="result" hidden></div>
     </section>
+      </aside>
 
+      <div class="content">
     <!-- Lista de bodas -->
     <section>
       <h2>Bodas</h2>
       <p id="empty" class="muted" hidden>Todavía no hay bodas. Crea la primera arriba.</p>
       <div id="weddings"></div>
     </section>
+      </div>
+    </div>
   </main>
 
   <!-- Editar nombres o dirección -->

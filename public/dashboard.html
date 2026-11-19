@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="wide">
+<body class="pc">
   <header class="header bar">
     <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
     <button id="logout" class="link-button" type="button">Salir</button>
@@ -25,6 +25,7 @@
       <p>Aquí ves quién ya confirmó, quién falta, y manejas tu lista de invitados.</p>
     </section>
 
+    <div class="top-grid">
     <!-- Resumen: gráfica circular, barra de personas y cuatro números -->
     <section class="panel overview" aria-label="Resumen de respuestas">
       <div class="donut-wrap">
@@ -50,7 +51,10 @@
       <div class="tile-pending"><strong id="count-pending">0</strong><span>sin responder</span></div>
       <div class="tile-people"><strong id="count-people">0</strong><span>personas confirmadas</span></div>
     </section>
+    </div>
 
+    <div class="cols">
+      <aside class="side">
     <!-- Agregar invitados -->
     <section class="panel" aria-labelledby="add-title">
       <h2 id="add-title">Agregar invitado</h2>
@@ -94,7 +98,9 @@
         <button id="wa-reset" class="btn-ghost" type="button">Volver al mensaje original</button>
       </details>
     </section>
+      </aside>
 
+      <div class="content">
     <!-- Lista de invitados con su estado -->
     <section>
       <h2>Invitados</h2>
@@ -124,6 +130,8 @@
         </table>
       </div>
     </section>
+      </div>
+    </div>
 
     <!-- SOLO PARA PRUEBAS. Borrar junto con functions/api/test-rsvp.js cuando ya no haga falta. -->
     <section id="test-section" class="soon">
