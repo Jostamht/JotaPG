@@ -76,7 +76,7 @@ async function copiar(texto, queCopio) {
     aviso(`Copiado: ${queCopio}.`);
   } catch {
     // Si el navegador no deja copiar solo, se muestra el texto para copiarlo a mano.
-    window.prompt("Copia este texto:", texto);
+    await mostrarTexto(`Copia ${queCopio}`, texto);
   }
 }
 
@@ -270,9 +270,11 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
 // --- Código nuevo y eliminar -------------------------------------------------
 
 async function codigoNuevo(boda) {
-  const seguro = window.confirm(
-    `Se crea un código nuevo para ${boda.names}. El anterior deja de funcionar y tendrás que enviarles el nuevo. ¿Seguimos?`
-  );
+  const seguro = await confirmar({
+    titulo: `Código nuevo para ${boda.names}`,
+    mensaje: "El código anterior deja de funcionar y tendrás que enviarles el nuevo.",
+    confirmar: "Crear código nuevo",
+  });
   if (!seguro) return;
 
   const { ok, datos } = await pedir(`/api/admin/couples/${encodeURIComponent(boda.invite_id)}`, "PUT", {
@@ -286,11 +288,14 @@ async function codigoNuevo(boda) {
 async function eliminar(boda) {
   const detalle =
     boda.guests > 0 ? ` Se borran también sus ${boda.guests} invitados y todas sus respuestas.` : "";
-  const respuesta = window.prompt(
-    `Vas a eliminar la boda de ${boda.names}.${detalle} Esto no se puede deshacer.\n\nPara confirmar, escribe ELIMINAR:`
-  );
-  if (respuesta === null) return;
-  if (respuesta.trim().toUpperCase() !== "ELIMINAR") return aviso("No se eliminó nada.", "bad");
+  const seguro = await confirmar({
+    titulo: `Eliminar la boda de ${boda.names}`,
+    mensaje: `${detalle} Esto no se puede deshacer.`.trim(),
+    escribir: "ELIMINAR",
+    confirmar: "Eliminar boda",
+    peligro: true,
+  });
+  if (!seguro) return;
 
   const { ok, datos } = await pedir(`/api/admin/couples/${encodeURIComponent(boda.invite_id)}`, "DELETE");
   if (!ok) return aviso(mensajeDe(datos), "bad");

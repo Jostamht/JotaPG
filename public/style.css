@@ -233,3 +233,18 @@ dialog h2 { margin-top: 0; }
   .guests td.actions { grid-column: 1 / -1; text-align: left; margin-top: 8px; }
   .guests td.actions button { margin: 0 8px 0 0; }
 }
+
+/* Lo que está marcado como oculto se esconde siempre, aunque otro estilo le dé 'display'. */
+[hidden] { display: none !important; }
+
+/* Cuadro de confirmación propio (reemplaza los avisos del navegador) */
+.btn-danger-solid { background: #b00020; color: var(--blanco); }
+.btn-danger-solid:hover { background: #8a0019; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button:disabled:hover { background: var(--negro); }
+button.btn-danger-solid:disabled:hover { background: #b00020; }
+.dialog-msg { margin: 0; color: var(--gris); white-space: pre-line; }
+dialog textarea { min-height: 96px; font-size: 0.9rem; }
+dialog[open] { animation: dialog-in 0.16s ease-out; }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { dialog[open] { animation: none; } }

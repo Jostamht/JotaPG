@@ -358,15 +358,20 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
 // --- Eliminar --------------------------------------------------------------
 
 async function eliminar(g) {
-  const aviso =
-    g.status === "pending"
-      ? `¿Eliminar a ${g.name} de la lista?`
-      : `¿Eliminar a ${g.name} de la lista? Ya respondió, y su respuesta también se borrará.`;
-  if (!window.confirm(aviso)) return;
+  const seguro = await confirmar({
+    titulo: `Eliminar a ${g.name}`,
+    mensaje:
+      g.status === "pending"
+        ? "Se quita de la lista de invitados."
+        : "Se quita de la lista y su respuesta también se borra. Esto no se puede deshacer.",
+    confirmar: "Eliminar",
+    peligro: true,
+  });
+  if (!seguro) return;
 
   const { ok, datos } = await pedir(`/api/guests/${g.id}`, "DELETE");
   if (!ok) {
-    window.alert(mensajeDe(datos));
+    await avisar("No se pudo eliminar", mensajeDe(datos));
     return;
   }
   cargar();
