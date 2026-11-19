@@ -110,6 +110,7 @@ function dibujarTabla() {
   for (const g of visibles) {
     const fila = document.createElement("tr");
     fila.appendChild(celda(g.name));
+    fila.appendChild(celda(g.phone || "—", "Celular")).classList.add("phone");
     fila.appendChild(celda(g.passes, "Pases"));
 
     const estado = document.createElement("td");
@@ -133,6 +134,85 @@ function dibujarTabla() {
 
   document.getElementById("table").hidden = visibles.length === 0;
   document.getElementById("no-match").hidden = !(busqueda && invitados.length > 0 && visibles.length === 0);
+}
+
+// --- Gráfica circular y barra de personas ---------------------------------
+
+const NS = "http://www.w3.org/2000/svg";
+const RADIO = 48;
+const VUELTA = 2 * Math.PI * RADIO;
+
+function anillo(color, largo, inicio) {
+  const c = document.createElementNS(NS, "circle");
+  c.setAttribute("cx", "60");
+  c.setAttribute("cy", "60");
+  c.setAttribute("r", String(RADIO));
+  c.setAttribute("fill", "none");
+  c.setAttribute("stroke", color);
+  c.setAttribute("stroke-width", "14");
+  c.setAttribute("transform", "rotate(-90 60 60)");
+  c.setAttribute("stroke-dashoffset", String(-inicio));
+  c.setAttribute("stroke-dasharray", `0 ${VUELTA}`);
+  c.classList.add("donut-seg");
+  // Se dibuja desde cero para que la gráfica "crezca" al abrir el panel.
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => c.setAttribute("stroke-dasharray", `${largo} ${VUELTA - largo}`))
+  );
+  return c;
+}
+
+function dibujarResumen(guests, others) {
+  const si = guests.filter((g) => g.status === "confirmed").length + others.filter((r) => r.attending === 1).length;
+  const no = guests.filter((g) => g.status === "declined").length + others.filter((r) => r.attending !== 1).length;
+  const faltan = guests.filter((g) => g.status === "pending").length;
+  const total = si + no + faltan;
+
+  document.getElementById("legend-yes").textContent = si;
+  document.getElementById("legend-no").textContent = no;
+  document.getElementById("legend-pending").textContent = faltan;
+  document.getElementById("donut-pct").textContent = total ? Math.round(((si + no) / total) * 100) + "%" : "—";
+
+  const svg = document.getElementById("donut");
+  svg.replaceChildren();
+  const fondo = document.createElementNS(NS, "circle");
+  fondo.setAttribute("cx", "60");
+  fondo.setAttribute("cy", "60");
+  fondo.setAttribute("r", String(RADIO));
+  fondo.setAttribute("fill", "none");
+  fondo.setAttribute("stroke", "#f1f1f1");
+  fondo.setAttribute("stroke-width", "14");
+  svg.appendChild(fondo);
+
+  let inicio = 0;
+  for (const [cantidad, color] of [[si, "#0a7a3c"], [no, "#d9485f"], [faltan, "#cfcfcf"]]) {
+    if (!cantidad) continue;
+    const largo = (cantidad / total) * VUELTA;
+    svg.appendChild(anillo(color, largo, inicio));
+    inicio += largo;
+  }
+  svg.setAttribute(
+    "aria-label",
+    total
+      ? `${si} confirmaron, ${no} no vienen, ${faltan} sin responder`
+      : "Todavía no hay invitados"
+  );
+
+  // Barra: personas confirmadas de los pases repartidos a la lista.
+  const pases = guests.reduce((suma, g) => suma + g.passes, 0);
+  const personas = guests
+    .filter((g) => g.status === "confirmed")
+    .reduce((suma, g) => suma + g.guests_count, 0);
+  document.getElementById("bar-people").textContent = personas;
+  document.getElementById("bar-text").textContent = pases
+    ? `de ${pases} pases confirmados`
+    : "personas confirmadas";
+  const relleno = document.getElementById("bar-fill");
+  relleno.style.width = "0%";
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      relleno.style.width = pases ? Math.min(100, (personas / pases) * 100) + "%" : "0%";
+    })
+  );
 }
 
 async function cargar() {
@@ -175,6 +255,8 @@ async function cargar() {
   document.getElementById("count-people").textContent =
     confirmaron.reduce((suma, g) => suma + g.guests_count, 0) +
     sueltasQueVienen.reduce((suma, r) => suma + r.guests_count, 0);
+
+  dibujarResumen(guests, others);
 
   // Invitados de la lista
   document.getElementById("empty").hidden = guests.length !== 0;

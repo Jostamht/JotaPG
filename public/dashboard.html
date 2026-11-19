@@ -25,12 +25,30 @@
       <p>Aquí ves quién ya confirmó, quién falta, y manejas tu lista de invitados.</p>
     </section>
 
-    <!-- Resumen: cuatro números -->
+    <!-- Resumen: gráfica circular, barra de personas y cuatro números -->
+    <section class="panel overview" aria-label="Resumen de respuestas">
+      <div class="donut-wrap">
+        <svg id="donut" viewBox="0 0 120 120" role="img" aria-label="Gráfica de respuestas"></svg>
+        <div class="donut-center"><strong id="donut-pct">—</strong><span>han respondido</span></div>
+      </div>
+      <div class="overview-side">
+        <ul class="legend">
+          <li><i class="dot-yes"></i>Confirmaron <b id="legend-yes">0</b></li>
+          <li><i class="dot-no"></i>No vienen <b id="legend-no">0</b></li>
+          <li><i class="dot-pending"></i>Sin responder <b id="legend-pending">0</b></li>
+        </ul>
+        <div class="people-bar">
+          <p><b id="bar-people">0</b> <span id="bar-text">personas confirmadas</span></p>
+          <div class="bar" aria-hidden="true"><div id="bar-fill" class="bar-fill"></div></div>
+        </div>
+      </div>
+    </section>
+
     <section class="summary" aria-label="Resumen">
-      <div><strong id="count-yes">0</strong><span>confirmaron</span></div>
-      <div><strong id="count-no">0</strong><span>no vienen</span></div>
-      <div><strong id="count-pending">0</strong><span>sin responder</span></div>
-      <div><strong id="count-people">0</strong><span>personas confirmadas</span></div>
+      <div class="tile-yes"><strong id="count-yes">0</strong><span>confirmaron</span></div>
+      <div class="tile-no"><strong id="count-no">0</strong><span>no vienen</span></div>
+      <div class="tile-pending"><strong id="count-pending">0</strong><span>sin responder</span></div>
+      <div class="tile-people"><strong id="count-people">0</strong><span>personas confirmadas</span></div>
     </section>
 
     <!-- Agregar invitados -->
@@ -67,7 +85,7 @@
       <div class="table-wrap">
         <table id="table" class="guests" hidden>
           <thead>
-            <tr><th>Invitado</th><th>Pases</th><th>Estado</th><th>Personas</th><th>Notas</th><th><span class="sr-only">Acciones</span></th></tr>
+            <tr><th>Invitado</th><th>Celular</th><th>Pases</th><th>Estado</th><th>Personas</th><th>Notas</th><th><span class="sr-only">Acciones</span></th></tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
