@@ -248,7 +248,7 @@ function anillo(color, largo, inicio) {
   c.setAttribute("cy", "60");
   c.setAttribute("r", String(RADIO));
   c.setAttribute("fill", "none");
-  c.setAttribute("stroke", color);
+  c.style.stroke = color;
   c.setAttribute("stroke-width", "14");
   c.setAttribute("transform", "rotate(-90 60 60)");
   c.setAttribute("stroke-dashoffset", String(-inicio));
@@ -279,12 +279,12 @@ function dibujarResumen(guests, others) {
   fondo.setAttribute("cy", "60");
   fondo.setAttribute("r", String(RADIO));
   fondo.setAttribute("fill", "none");
-  fondo.setAttribute("stroke", "#f1f1f1");
+  fondo.style.stroke = "var(--suave)";
   fondo.setAttribute("stroke-width", "14");
   svg.appendChild(fondo);
 
   let inicio = 0;
-  for (const [cantidad, color] of [[si, "#0a7a3c"], [no, "#d9485f"], [faltan, "#cfcfcf"]]) {
+  for (const [cantidad, color] of [[si, "var(--verde-grafica)"], [no, "var(--rojo-grafica)"], [faltan, "var(--gris-grafica)"]]) {
     if (!cantidad) continue;
     const largo = (cantidad / total) * VUELTA;
     svg.appendChild(anillo(color, largo, inicio));
