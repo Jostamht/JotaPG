@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@800&family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="wide">
   <header class="header bar">
     <a class="logo" href="/"><span class="dot">.</span>JotaPG</a>
     <button id="logout" class="link-button" type="button">Salir</button>
@@ -74,6 +74,24 @@
         <textarea id="bulk-text" spellcheck="false" placeholder="Juan Pérez, 2, 71234567&#10;Ruth Gómez, 3, 75678901&#10;Mario Ríos, 1, 76543210"></textarea>
         <button id="bulk-add" type="button">Agregar todos</button>
         <div id="bulk-feedback" class="feedback" role="status"></div>
+      </details>
+    </section>
+
+    <!-- Enviar las invitaciones por WhatsApp -->
+    <section class="panel" aria-labelledby="wa-title">
+      <h2 id="wa-title">Enviar invitaciones por WhatsApp</h2>
+      <p class="muted">En la lista de abajo, cada invitado tiene un botón verde de WhatsApp. Al tocarlo se abre WhatsApp con el mensaje listo; solo falta presionar enviar.</p>
+      <details>
+        <summary>Cambiar el mensaje</summary>
+        <label>Mensaje
+          <textarea id="wa-message" rows="6"></textarea>
+        </label>
+        <p class="muted">Escribe <b>{nombre}</b> donde quieras el nombre del invitado, <b>{enlace}</b> donde quieras el enlace de la invitación y <b>{pareja}</b> para los nombres de ustedes.</p>
+        <label>Código de país de los celulares
+          <input id="wa-country" type="text" inputmode="numeric" maxlength="4" autocomplete="off">
+        </label>
+        <p class="muted">Solo se agrega a los números que no lo traen. Bolivia es 591.</p>
+        <button id="wa-reset" class="btn-ghost" type="button">Volver al mensaje original</button>
       </details>
     </section>
 

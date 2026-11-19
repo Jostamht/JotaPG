@@ -25,6 +25,9 @@ const MENSAJES = {
 const GENERICO = "Algo salió mal. Inténtalo otra vez en un momento.";
 
 let invitados = [];
+let enlaceInvitacion = "";
+let nombresPareja = "";
+let idBoda = "";
 
 // --- Pedidos al servidor -------------------------------------------------
 
@@ -97,6 +100,96 @@ function notas(g) {
   return partes.join(" · ") || "—";
 }
 
+// --- WhatsApp --------------------------------------------------------------
+// El mensaje, el código de país y a quién ya se le envió se guardan en este navegador.
+
+const MENSAJE_ORIGINAL =
+  "¡Hola {nombre}! Con mucho cariño te invitamos a nuestra boda. Aquí está tu invitación: {enlace}\n\n" +
+  "Para confirmar tu asistencia, escribe tu nombre y tu número de celular completo.\n\n{pareja}";
+const CODIGO_ORIGINAL = "591";
+
+function guardado(clave, porDefecto) {
+  try {
+    return localStorage.getItem(clave) ?? porDefecto;
+  } catch {
+    return porDefecto;
+  }
+}
+function guardar(clave, valor) {
+  try {
+    localStorage.setItem(clave, valor);
+  } catch {
+    // Sin almacenamiento el mensaje funciona igual, solo no se recuerda.
+  }
+}
+
+function enviados() {
+  try {
+    return new Set(JSON.parse(guardado("jp-wa-enviados-" + idBoda, "[]")));
+  } catch {
+    return new Set();
+  }
+}
+
+function numeroWhatsApp(celular) {
+  const codigo = document.getElementById("wa-country").value.replace(/\D/g, "");
+  let d = celular.replace(/\D/g, "").replace(/^0+/, "");
+  if (d.length < 7) return "";
+  if (codigo && !(d.startsWith(codigo) && d.length >= codigo.length + 7)) d = codigo + d;
+  return d;
+}
+
+function mensajePara(g) {
+  const primerNombre = g.name.trim().split(/\s+/)[0];
+  return document
+    .getElementById("wa-message")
+    .value.replaceAll("{nombre}", primerNombre)
+    .replaceAll("{enlace}", enlaceInvitacion)
+    .replaceAll("{pareja}", nombresPareja);
+}
+
+function botonWhatsApp(g) {
+  const numero = numeroWhatsApp(g.phone);
+  if (!numero) return null;
+  const a = document.createElement("a");
+  a.className = "btn-small btn-wa";
+  a.href = `https://wa.me/${numero}?text=${encodeURIComponent(mensajePara(g))}`;
+  a.target = "_blank";
+  a.rel = "noopener";
+  a.setAttribute("aria-label", "Enviar invitación por WhatsApp a " + g.name);
+  const yaSeEnvio = enviados().has(g.id);
+  a.textContent = yaSeEnvio ? "WhatsApp ✓" : "WhatsApp";
+  if (yaSeEnvio) a.title = "Ya se abrió el mensaje para esta persona. Toca para enviarlo otra vez.";
+  a.addEventListener("click", () => {
+    const lista = enviados();
+    lista.add(g.id);
+    guardar("jp-wa-enviados-" + idBoda, JSON.stringify([...lista]));
+    a.textContent = "WhatsApp ✓";
+  });
+  return a;
+}
+
+function prepararWhatsApp() {
+  const mensaje = document.getElementById("wa-message");
+  const pais = document.getElementById("wa-country");
+  mensaje.value = guardado("jp-wa-mensaje", MENSAJE_ORIGINAL);
+  pais.value = guardado("jp-wa-pais", CODIGO_ORIGINAL);
+  mensaje.addEventListener("input", () => {
+    guardar("jp-wa-mensaje", mensaje.value);
+    dibujarTabla();
+  });
+  pais.addEventListener("input", () => {
+    pais.value = pais.value.replace(/\D/g, "");
+    guardar("jp-wa-pais", pais.value);
+    dibujarTabla();
+  });
+  document.getElementById("wa-reset").addEventListener("click", () => {
+    mensaje.value = MENSAJE_ORIGINAL;
+    guardar("jp-wa-mensaje", MENSAJE_ORIGINAL);
+    dibujarTabla();
+  });
+}
+
 function normalizar(texto) {
   return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 }
@@ -125,6 +218,8 @@ function dibujarTabla() {
 
     const acciones = document.createElement("td");
     acciones.className = "actions";
+    const wa = botonWhatsApp(g);
+    if (wa) acciones.appendChild(wa);
     acciones.appendChild(boton("Editar", "btn-ghost", () => abrirEdicion(g), "Editar a " + g.name));
     acciones.appendChild(boton("Eliminar", "btn-danger", () => eliminar(g), "Eliminar a " + g.name));
     fila.appendChild(acciones);
@@ -229,6 +324,9 @@ async function cargar() {
 
   const { names, guests, others, role } = datos;
   invitados = guests;
+  enlaceInvitacion = datos.invite_url;
+  nombresPareja = names;
+  idBoda = datos.invite_id;
 
   document.getElementById("title").textContent = names;
 
@@ -474,4 +572,5 @@ document.getElementById("test").addEventListener("click", async () => {
 });
 
 llenarPases(document.getElementById("add-passes"), 1);
+prepararWhatsApp();
 cargar();

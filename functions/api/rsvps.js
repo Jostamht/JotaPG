@@ -50,6 +50,7 @@ export async function onRequestGet({ request, env }) {
     role: auth.role,
     invite_id: inviteId,
     names: couple.names,
+    invite_url: couple.allowed_origin,
     guests,
     others,
   });

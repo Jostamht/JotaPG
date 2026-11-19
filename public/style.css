@@ -285,3 +285,15 @@ td.phone { font-variant-numeric: tabular-nums; white-space: nowrap; }
 @media (prefers-reduced-motion: reduce) {
   .donut-seg, .bar-fill { transition: none; }
 }
+
+/* Botón de WhatsApp en cada invitado */
+a.btn-wa { background: #1faa52; color: var(--blanco); }
+a.btn-wa:hover { background: #168a41; }
+.actions .btn-wa { margin-right: 6px; }
+@media (max-width: 600px) {
+  .guests td.actions .btn-wa { margin: 0 8px 0 0; }
+}
+
+/* El panel de invitados es más ancho para que quepan todos los botones */
+.wide .header, .wide main { max-width: 920px; }
+@media (min-width: 601px) { .wide .guests td:first-child { white-space: nowrap; } }
