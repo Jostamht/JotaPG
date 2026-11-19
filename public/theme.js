@@ -68,7 +68,13 @@
 
     boton.addEventListener("click", function () {
       var nuevo = raiz.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      // Los colores se mezclan en vez de cambiar de golpe (solo durante el cambio).
+      raiz.classList.add("theme-fade");
       poner(nuevo);
+      clearTimeout(boton._fade);
+      boton._fade = setTimeout(function () {
+        raiz.classList.remove("theme-fade");
+      }, 600);
       try {
         localStorage.setItem(CLAVE, nuevo);
       } catch (e) {

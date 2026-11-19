@@ -22,8 +22,23 @@
     <p id="admin-banner" class="banner" hidden></p>
 
     <section class="hero small">
-      <h1 id="title">Tu panel</h1>
+      <h1><span id="hello" class="hello">Bienvenidos</span><span id="title">Tu panel</span></h1>
       <p>Aquí ves quién ya confirmó, quién falta, y manejas tu lista de invitados.</p>
+    </section>
+
+    <!-- Cuenta regresiva: solo aparece si en /admin se puso la fecha de la boda -->
+    <section id="countdown" class="countdown" aria-label="Cuenta regresiva para la boda" hidden>
+      <div class="cd-text">
+        <p class="cd-kicker" id="cd-kicker">Faltan para la boda</p>
+        <p class="cd-date" id="cd-date"></p>
+      </div>
+      <div class="cd-grid" id="cd-grid" role="timer">
+        <div><strong id="cd-d">0</strong><span id="cd-d-l">días</span></div>
+        <div><strong id="cd-h">00</strong><span>horas</span></div>
+        <div><strong id="cd-m">00</strong><span>minutos</span></div>
+        <div><strong id="cd-s">00</strong><span>segundos</span></div>
+      </div>
+      <p class="cd-message" id="cd-message" hidden></p>
     </section>
 
     <div class="top-grid">

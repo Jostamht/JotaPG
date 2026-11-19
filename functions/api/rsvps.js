@@ -51,6 +51,7 @@ export async function onRequestGet({ request, env }) {
     invite_id: inviteId,
     names: couple.names,
     invite_url: couple.allowed_origin,
+    wedding_date: couple.wedding_date ?? null,
     guests,
     others,
   });

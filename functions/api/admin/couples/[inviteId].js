@@ -5,7 +5,7 @@
 
 import { jsonResponse } from "../../../../lib/session.js";
 import { requireAdmin } from "../../../../lib/auth.js";
-import { normalizeOrigin, freeAccessCode } from "../../../../lib/couples.js";
+import { normalizeOrigin, freeAccessCode, parseWeddingDate } from "../../../../lib/couples.js";
 
 export async function onRequestPut({ request, env, params }) {
   const { error } = await requireAdmin(request, env, { write: true });
@@ -13,7 +13,7 @@ export async function onRequestPut({ request, env, params }) {
 
   const inviteId = String(params.inviteId ?? "");
   const couple = await env.DB
-    .prepare("SELECT invite_id, names, allowed_origin, access_code FROM couples WHERE invite_id = ?")
+    .prepare("SELECT * FROM couples WHERE invite_id = ?")
     .bind(inviteId)
     .first();
   if (!couple) return jsonResponse({ error: "couple_not_found" }, 404);
@@ -28,6 +28,8 @@ export async function onRequestPut({ request, env, params }) {
   let names = couple.names;
   let origin = couple.allowed_origin;
   let code = couple.access_code;
+  let date = couple.wedding_date ?? null;
+  const dateChanged = data.wedding_date !== undefined;
 
   if (data.names !== undefined) {
     names = String(data.names).trim().replace(/\s+/g, " ");
@@ -44,6 +46,12 @@ export async function onRequestPut({ request, env, params }) {
     if (taken) return jsonResponse({ error: "origin_in_use" }, 409);
   }
 
+  if (dateChanged) {
+    const parsed = parseWeddingDate(data.wedding_date);
+    if (!parsed) return jsonResponse({ error: "invalid_date" }, 400);
+    date = parsed.value;
+  }
+
   if (data.regenerate_code === true) code = await freeAccessCode(env);
 
   await env.DB
@@ -51,7 +59,25 @@ export async function onRequestPut({ request, env, params }) {
     .bind(names, origin, code, inviteId)
     .run();
 
-  return jsonResponse({ invite_id: inviteId, names, allowed_origin: origin, access_code: code });
+  // La fecha va aparte: si falta la migración 004, lo demás se guarda y se avisa.
+  if (dateChanged) {
+    try {
+      await env.DB
+        .prepare("UPDATE couples SET wedding_date = ? WHERE invite_id = ?")
+        .bind(date, inviteId)
+        .run();
+    } catch {
+      return jsonResponse({ error: "migration_needed" }, 500);
+    }
+  }
+
+  return jsonResponse({
+    invite_id: inviteId,
+    names,
+    allowed_origin: origin,
+    access_code: code,
+    wedding_date: date,
+  });
 }
 
 export async function onRequestDelete({ request, env, params }) {

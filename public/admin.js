@@ -9,6 +9,8 @@ const MENSAJES = {
   invite_id_in_use: "Ese nombre corto ya lo usa otra boda.",
   couple_not_found: "Esa boda ya no existe.",
   forbidden: "No tienes permiso para hacer eso.",
+  invalid_date: "La fecha no es válida. Elígela de nuevo.",
+  migration_needed: "Para guardar la fecha hay que correr una vez la migración 004 en la base de datos (está en el README).",
 };
 const GENERICO = "Algo salió mal. Inténtalo otra vez en un momento.";
 
@@ -98,6 +100,19 @@ function texto(etiqueta, clase, contenido) {
   return el;
 }
 
+// "2026-12-12T16:00" -> "sábado, 12 de diciembre de 2026, 16:00"
+function fechaLinda(texto) {
+  const [f, h] = texto.split("T");
+  const [a, m, d] = f.split("-").map(Number);
+  const [hh, mm] = h.split(":").map(Number);
+  const fecha = new Date(a, m - 1, d, hh, mm);
+  return (
+    fecha.toLocaleDateString("es", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
+    ", " +
+    fecha.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" })
+  );
+}
+
 function tarjeta(boda) {
   const caja = document.createElement("article");
   caja.className = "wedding";
@@ -113,6 +128,8 @@ function tarjeta(boda) {
   enlace.textContent = boda.allowed_origin;
   direccion.append(enlace, document.createTextNode(` · nombre corto: ${boda.invite_id}`));
   caja.appendChild(direccion);
+
+  if (boda.wedding_date) caja.appendChild(texto("p", "meta", "Fecha de la boda: " + fechaLinda(boda.wedding_date)));
 
   caja.appendChild(
     texto(
@@ -179,6 +196,7 @@ document.getElementById("new-form").addEventListener("submit", async (event) => 
     names: document.getElementById("new-names").value,
     allowed_origin: document.getElementById("new-origin").value,
     invite_id: document.getElementById("new-id").value,
+    wedding_date: document.getElementById("new-date").value,
   });
   crear.disabled = false;
 
@@ -189,6 +207,7 @@ document.getElementById("new-form").addEventListener("submit", async (event) => 
 
   event.target.reset();
   mostrarResultado(datos);
+  if (datos.date_error) error.textContent = "La boda se creó, pero no se guardó la fecha. " + mensajeDe({ error: datos.date_error });
   cargar();
 });
 
@@ -239,6 +258,7 @@ function abrirEdicion(boda) {
   editando = boda;
   document.getElementById("edit-names").value = boda.names;
   document.getElementById("edit-origin").value = boda.allowed_origin;
+  document.getElementById("edit-date").value = boda.wedding_date || "";
   document.getElementById("edit-feedback").textContent = "";
   dialogo.showModal();
 }
@@ -255,6 +275,7 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
   const { ok, datos } = await pedir(`/api/admin/couples/${encodeURIComponent(editando.invite_id)}`, "PUT", {
     names: document.getElementById("edit-names").value,
     allowed_origin: document.getElementById("edit-origin").value,
+    wedding_date: document.getElementById("edit-date").value,
   });
   guardar.disabled = false;
 

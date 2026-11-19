@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS couples (
   names          TEXT NOT NULL,          -- ej. "Juan y Carla"
   allowed_origin TEXT NOT NULL,          -- dirección de su invitación, ej. "https://juancarlos.pages.dev"
   access_code    TEXT NOT NULL UNIQUE,   -- el código con el que entran a su panel
+  wedding_date   TEXT,                   -- fecha y hora de la boda, ej. "2026-12-12T16:00" (opcional)
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

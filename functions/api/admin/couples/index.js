@@ -10,6 +10,7 @@ import {
   freeInviteId,
   freeAccessCode,
   INVITE_ID_PATTERN,
+  parseWeddingDate,
 } from "../../../../lib/couples.js";
 
 export async function onRequestGet({ request, env }) {
@@ -18,7 +19,7 @@ export async function onRequestGet({ request, env }) {
 
   const { results } = await env.DB
     .prepare(
-      `SELECT c.invite_id, c.names, c.allowed_origin, c.access_code, c.created_at,
+      `SELECT c.*,
          (SELECT COUNT(*) FROM guests g WHERE g.invite_id = c.invite_id) AS guests,
          (SELECT COUNT(*) FROM rsvps r JOIN guests g ON g.id = r.guest_id
             WHERE g.invite_id = c.invite_id AND r.attending = 1) AS confirmed,
@@ -31,8 +32,9 @@ export async function onRequestGet({ request, env }) {
     )
     .all();
 
-  const couples = results.map((c) => ({
+  const couples = results.map(({ id, ...c }) => ({
     ...c,
+    wedding_date: c.wedding_date ?? null,
     pending: c.guests - c.confirmed - c.declined,
   }));
   return jsonResponse({ couples });
@@ -54,6 +56,9 @@ export async function onRequestPost({ request, env }) {
 
   const origin = normalizeOrigin(data.allowed_origin);
   if (!origin) return jsonResponse({ error: "invalid_origin" }, 400);
+
+  const date = parseWeddingDate(data.wedding_date);
+  if (!date) return jsonResponse({ error: "invalid_date" }, 400);
 
   const originTaken = await env.DB
     .prepare("SELECT 1 FROM couples WHERE allowed_origin = ?")
@@ -79,8 +84,28 @@ export async function onRequestPost({ request, env }) {
     .bind(inviteId, names, origin, accessCode)
     .run();
 
+  // La fecha va aparte: si falta la migración 004, la boda se crea igual y se avisa.
+  let dateSaved = true;
+  if (date.value) {
+    try {
+      await env.DB
+        .prepare("UPDATE couples SET wedding_date = ? WHERE invite_id = ?")
+        .bind(date.value, inviteId)
+        .run();
+    } catch {
+      dateSaved = false;
+    }
+  }
+
   return jsonResponse(
-    { invite_id: inviteId, names, allowed_origin: origin, access_code: accessCode },
+    {
+      invite_id: inviteId,
+      names,
+      allowed_origin: origin,
+      access_code: accessCode,
+      wedding_date: dateSaved ? date.value : null,
+      ...(dateSaved ? {} : { date_error: "migration_needed" }),
+    },
     201
   );
 }

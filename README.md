@@ -154,11 +154,13 @@ Los cambios de la base de datos están en `migrations/`. Se corren una sola vez,
 npx wrangler d1 execute jotapg-db --remote --file=migrations/001-invitados.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/002-administrador.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/003-celular-completo.sql
+npx wrangler d1 execute jotapg-db --remote --file=migrations/004-fecha-de-la-boda.sql
 ```
 
 - La `001` crea la lista de invitados y carga los de la muestra (`muestra-3`).
 - La `002` crea tu clave de administrador.
 - La `003` cambia los últimos 4 dígitos del celular por el número completo.
+- La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
 
 También se pueden pegar en la consola de `jotapg-db` en Cloudflare, una por una.
 

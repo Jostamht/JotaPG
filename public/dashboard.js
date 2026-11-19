@@ -236,6 +236,67 @@ function dibujarTabla() {
   document.getElementById("no-match").hidden = !(busqueda && invitados.length > 0 && visibles.length === 0);
 }
 
+// --- Cuenta regresiva ----------------------------------------------------------
+
+let reloj = null;
+
+function fechaDeBoda(texto) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(texto || "");
+  if (!m) return null;
+  const [a, mes, d, h, min] = m.slice(1).map(Number);
+  return new Date(a, mes - 1, d, h, min);
+}
+
+function dosCifras(n) {
+  return String(n).padStart(2, "0");
+}
+
+function prepararCuentaRegresiva(texto) {
+  clearInterval(reloj);
+  const caja = document.getElementById("countdown");
+  const boda = fechaDeBoda(texto);
+  caja.hidden = !boda;
+  if (!boda) return;
+
+  document.getElementById("cd-date").textContent =
+    boda.toLocaleDateString("es", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
+    " · " +
+    boda.toLocaleTimeString("es", { hour: "2-digit", minute: "2-digit" });
+
+  const cuadricula = document.getElementById("cd-grid");
+  const mensaje = document.getElementById("cd-message");
+  const rotulo = document.getElementById("cd-kicker");
+
+  function actualizar() {
+    const falta = boda.getTime() - Date.now();
+    if (falta > 0) {
+      const seg = Math.floor(falta / 1000);
+      const dias = Math.floor(seg / 86400);
+      cuadricula.hidden = false;
+      mensaje.hidden = true;
+      rotulo.textContent = "Faltan para la boda";
+      document.getElementById("cd-d").textContent = dias;
+      document.getElementById("cd-d-l").textContent = dias === 1 ? "día" : "días";
+      document.getElementById("cd-h").textContent = dosCifras(Math.floor((seg % 86400) / 3600));
+      document.getElementById("cd-m").textContent = dosCifras(Math.floor((seg % 3600) / 60));
+      document.getElementById("cd-s").textContent = dosCifras(seg % 60);
+      return;
+    }
+    cuadricula.hidden = true;
+    mensaje.hidden = false;
+    const hoy = new Date();
+    const mismoDia =
+      hoy.getFullYear() === boda.getFullYear() &&
+      hoy.getMonth() === boda.getMonth() &&
+      hoy.getDate() === boda.getDate();
+    rotulo.textContent = mismoDia ? "¡Es hoy!" : "¡Felicidades!";
+    mensaje.textContent = mismoDia ? "Hoy es el gran día." : "Ya pasó el gran día. Que lo disfruten mucho.";
+    clearInterval(reloj);
+  }
+  actualizar();
+  reloj = setInterval(actualizar, 1000);
+}
+
 // --- Gráfica circular y barra de personas ---------------------------------
 
 const NS = "http://www.w3.org/2000/svg";
@@ -323,6 +384,7 @@ async function cargar() {
     return;
   }
   if (!ok) {
+    document.getElementById("hello").hidden = true;
     document.getElementById("title").textContent = "No pudimos cargar tus respuestas";
     return;
   }
@@ -334,6 +396,7 @@ async function cargar() {
   idBoda = datos.invite_id;
 
   document.getElementById("title").textContent = names;
+  prepararCuentaRegresiva(datos.wedding_date);
 
   // El administrador ve un aviso para volver; el modo de prueba es solo para parejas.
   const aviso = document.getElementById("admin-banner");
