@@ -158,13 +158,18 @@ function botonWhatsApp(g) {
   a.rel = "noopener";
   a.setAttribute("aria-label", "Enviar invitación por WhatsApp a " + g.name);
   const yaSeEnvio = enviados().has(g.id);
-  a.textContent = yaSeEnvio ? "WhatsApp ✓" : "WhatsApp";
-  if (yaSeEnvio) a.title = "Ya se abrió el mensaje para esta persona. Toca para enviarlo otra vez.";
+  const marcarEnviado = () => {
+    a.textContent = "✓ Enviado";
+    a.classList.add("sent");
+    a.title = "Ya se abrió el mensaje para esta persona. Toca para enviarlo otra vez.";
+  };
+  if (yaSeEnvio) marcarEnviado();
+  else a.textContent = "WhatsApp";
   a.addEventListener("click", () => {
     const lista = enviados();
     lista.add(g.id);
     guardar("jp-wa-enviados-" + idBoda, JSON.stringify([...lista]));
-    a.textContent = "WhatsApp ✓";
+    marcarEnviado();
   });
   return a;
 }

@@ -270,7 +270,7 @@ dialog[open] { animation: dialog-in 0.16s ease-out; }
 .dot-pending { background: #cfcfcf; }
 .people-bar p { margin: 0 0 6px; color: var(--gris); }
 .people-bar p b { color: var(--negro); font-size: 1.25rem; }
-.bar { height: 10px; background: #f1f1f1; border-radius: 999px; overflow: hidden; }
+.progress { height: 10px; background: #f1f1f1; border-radius: 999px; overflow: hidden; }
 .bar-fill { height: 100%; width: 0; background: var(--violeta); border-radius: 999px; transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1); }
 
 .summary div { border-top: 4px solid var(--linea); }
@@ -289,6 +289,9 @@ td.phone { font-variant-numeric: tabular-nums; white-space: nowrap; }
 /* Botón de WhatsApp en cada invitado */
 a.btn-wa { background: #1faa52; color: var(--blanco); }
 a.btn-wa:hover { background: #168a41; }
+/* Ya se abrió el mensaje: el botón pasa de verde sólido a verde claro con ✓ */
+a.btn-wa.sent { background: #e6f6ec; color: #0a7a3c; box-shadow: inset 0 0 0 1px #9fd8b6; }
+a.btn-wa.sent:hover { background: #d3efdd; }
 .actions .btn-wa { margin-right: 6px; }
 @media (max-width: 600px) {
   .guests td.actions .btn-wa { margin: 0 8px 0 0; }
@@ -297,3 +300,10 @@ a.btn-wa:hover { background: #168a41; }
 /* El panel de invitados es más ancho para que quepan todos los botones */
 .wide .header, .wide main { max-width: 920px; }
 @media (min-width: 601px) { .wide .guests td:first-child { white-space: nowrap; } }
+
+/* "Entrar" y "Salir" arriba a la derecha: botón con borde para que se noten */
+.enter, .header .link-button {
+  display: inline-block; padding: 8px 18px; border: 1px solid #cfcfcf; border-radius: 999px;
+  background: none; color: var(--negro); font-weight: 600; font-size: 0.95rem; text-decoration: none;
+}
+.enter:hover, .header .link-button:hover { background: #f4f0ff; border-color: var(--violeta); color: var(--negro); }
