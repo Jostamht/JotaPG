@@ -20,5 +20,8 @@ export async function onRequestGet({ request, env }) {
     admin_code: await origen(env.ADMIN_CODE, env, "admin_code"),
     // Solo los NOMBRES de lo que el sitio puede ver (nunca los valores), para detectar errores de escritura.
     nombres_visibles: Object.keys(env).sort(),
+    // Solo el tipo y el largo de SESSION_SECRET (nunca el valor), para saber si llega vacío.
+    session_secret_tipo: typeof env.SESSION_SECRET,
+    session_secret_largo: typeof env.SESSION_SECRET === "string" ? env.SESSION_SECRET.length : null,
   });
 }
