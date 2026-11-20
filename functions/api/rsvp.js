@@ -11,6 +11,8 @@ import {
   findGuest,
 } from "../../lib/invite-api.js";
 import { phonesMatch } from "../../lib/guests.js";
+import { verifyTurnstile } from "../../lib/turnstile.js";
+import { isLocked, recordFail, clearFails } from "../../lib/attempts.js";
 
 const MAX = { name: 100, dietary: 300, message: 500 };
 
@@ -33,6 +35,10 @@ export async function onRequestPost({ request, env }) {
   // Misma respuesta si la invitación no existe o el origen no coincide.
   if (!couple) return json({ error: "forbidden" }, 403);
 
+  // Anti-spam: Cloudflare debe confirmar que quien envía es una persona.
+  const human = await verifyTurnstile(env, data.turnstile_token, request.headers.get("CF-Connecting-IP"));
+  if (!human.ok) return json({ error: "turnstile_failed" }, 403, origin);
+
   const typedName = String(data.guest_name ?? "").trim();
   const phone = String(data.phone ?? "").trim();
   const dietary = String(data.dietary ?? "").trim();
@@ -52,8 +58,16 @@ export async function onRequestPost({ request, env }) {
   const { guest } = findGuest(await getGuests(env, inviteId), typedName);
   if (!guest) return json({ error: "guest_not_found" }, 404, origin);
 
+  // Bloqueo temporal tras varios celulares equivocados para este invitado.
+  if (await isLocked(env, inviteId, guest.id)) {
+    return json({ error: "too_many_attempts" }, 429, origin);
+  }
+
   if (!phonesMatch(guest.phone, phone)) {
-    return json({ error: "wrong_phone" }, 403, origin);
+    const nowLocked = await recordFail(env, inviteId, guest.id);
+    return nowLocked
+      ? json({ error: "too_many_attempts" }, 429, origin)
+      : json({ error: "wrong_phone" }, 403, origin);
   }
 
   if (!Number.isInteger(guestsCount) || guestsCount < 0 || guestsCount > guest.passes) {
@@ -72,5 +86,6 @@ export async function onRequestPost({ request, env }) {
       .bind(inviteId, guest.id, guest.name, attending, guestsCount, dietary || null, message || null),
   ]);
 
+  await clearFails(env, inviteId, guest.id);
   return json({ ok: true }, 201, origin);
 }

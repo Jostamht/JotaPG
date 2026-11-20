@@ -53,3 +53,12 @@ CREATE TABLE IF NOT EXISTS settings (
 -- Tu clave de administrador (al azar). Para verla:
 --   SELECT value FROM settings WHERE key = 'admin_code';
 INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_code', lower(hex(randomblob(16))));
+
+-- Bloqueo por celulares equivocados (anti-spam): ver lib/attempts.js
+CREATE TABLE IF NOT EXISTS rsvp_attempts (
+  invite_id    TEXT NOT NULL,
+  guest_id     INTEGER NOT NULL,
+  fails        INTEGER NOT NULL DEFAULT 0,
+  locked_until INTEGER,
+  PRIMARY KEY (invite_id, guest_id)
+);

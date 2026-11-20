@@ -73,6 +73,7 @@ Son dos textos privados. Se guardan en **Workers y Pages**, tu proyecto, **Setti
 
 - `SESSION_SECRET`: un texto largo y al azar con el que se firman las cookies (40 caracteres o más).
 - `ADMIN_CODE`: tu clave de administrador (ver abajo).
+- `TURNSTILE_SECRET`: la clave SECRETA del widget de Cloudflare Turnstile (la verificación anti-spam, ver más abajo).
 
 Genera el primero con un administrador de contraseñas o con `openssl rand -hex 32`.
 Cloudflare no vuelve a mostrar el valor de un secreto, así que guárdalos también en tu administrador
@@ -144,12 +145,14 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/001-invitados.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/002-administrador.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/003-celular-completo.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/004-fecha-de-la-boda.sql
+npx wrangler d1 execute jotapg-db --remote --file=migrations/005-bloqueo-por-intentos.sql
 ```
 
 - La `001` crea la lista de invitados y carga los de la muestra (`muestra-3`).
 - La `002` crea tu clave de administrador.
 - La `003` cambia los últimos 4 dígitos del celular por el número completo.
 - La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
+- La `005` crea la tabla del bloqueo por celulares equivocados (anti-spam).
 
 También se pueden pegar en la consola de `jotapg-db` en Cloudflare, una por una.
 
@@ -185,5 +188,19 @@ npx wrangler d1 execute jotapg-db --remote --command "INSERT INTO guests (invite
 - Al confirmar, la API revisa el celular completo y que los pases no pasen de los del invitado. El número vale
   con o sin el código de país («71234567» es lo mismo que «59171234567»).
   Si el mismo invitado vuelve a confirmar, su respuesta nueva reemplaza a la anterior.
-- Todavía falta el captcha (Turnstile) para evitar que alguien pruebe celulares al azar
-  antes de usarlo con parejas reales.
+## Protección contra spam
+
+Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
+
+- **Turnstile (Cloudflare):** la invitación muestra una verificación casi invisible y manda su resultado al
+  confirmar; JotaPG le pregunta a Cloudflare si es verdadero (`lib/turnstile.js`). La clave PÚBLICA del widget va
+  en el `invite.js` de cada invitación (`turnstileSiteKey`, es la misma para todas) y la clave SECRETA es el secreto
+  `TURNSTILE_SECRET` de Cloudflare. Si ese secreto no existe, no se exige nada.
+  El widget solo funciona en las direcciones que tenga en su lista de hostnames: **cada invitación nueva
+  hay que agregarla ahí** (Cloudflare, Turnstile, el widget, Hostname Management). El plan gratis permite
+  10 por widget y 20 widgets.
+- **Bloqueo:** tras 5 celulares equivocados para un mismo invitado, ese invitado queda bloqueado 15 minutos
+  (`lib/attempts.js`, tabla `rsvp_attempts`, migración 005). Una confirmación correcta borra los intentos.
+
+La búsqueda de nombre (`/api/guest-lookup`) todavía no exige Turnstile: se pregunta en cada pausa al escribir
+y el token sirve una sola vez. Está pendiente para más adelante.
