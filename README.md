@@ -37,7 +37,6 @@ functions/api/          La recepción (código que corre en Cloudflare)
   guest-lookup.js       Busca a un invitado por su nombre (la usan las invitaciones)
   guests/               Agregar, editar y borrar invitados (panel de la pareja y del administrador)
   admin/couples/        Crear, editar y borrar bodas (solo administrador)
-  test-rsvp.js          SOLO PRUEBAS: crea una respuesta falsa
 lib/session.js          Crea y revisa la cookie de sesión (pareja o administrador)
 lib/auth.js             Decide quién pide algo y de qué boda se trata
 lib/invite-api.js       Lo que comparten rsvp.js y guest-lookup.js (permisos y búsqueda por nombre)
@@ -121,7 +120,8 @@ Dura 1 día de sesión; después se vuelve a escribir.
 2. En **Nueva boda** escribe los nombres de la pareja y la dirección de su invitación
    (por ejemplo `https://juancarla.pages.dev`). El código de la pareja y el nombre corto se crean solos.
 3. Al crearla aparecen tres líneas (`lookupUrl`, `rsvpUrl` e `inviteId`). Pégalas en el `invite.js`
-   de su invitación.
+   de su invitación (el resto de los pasos para armar la invitación está en el README de la plantilla,
+   `Muestra-3-Invitacion`).
 4. **Agregar invitados** te lleva a su lista. Ahí los agregas tú o se lo dejas a la pareja.
 5. **Copiar mensaje para la pareja** te deja listo el texto con el enlace y su código para enviarlo.
 
@@ -184,10 +184,7 @@ npx wrangler d1 execute jotapg-db --remote --command "INSERT INTO guests (invite
 2. Abre `jotapg.pages.dev/login` y escribe el código de la pareja de prueba (o tu clave de administrador y entra a su boda).
 3. En el panel, el invitado debe aparecer como confirmó (o no viene) y los números de arriba deben cambiar.
 4. Agrega, edita y borra un invitado desde el panel.
-5. Si quieres ver respuestas sueltas, presiona **Crear respuesta de prueba**: salen en «Otras respuestas».
-
-Cuando termines de probar, borra `functions/api/test-rsvp.js` y el bloque
-"Modo de prueba" de `public/dashboard.html`.
+5. Cuando termines, borra el invitado de prueba desde el panel.
 
 ## Cosas a tener en cuenta
 

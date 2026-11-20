@@ -398,7 +398,7 @@ async function cargar() {
   document.getElementById("title").textContent = names;
   prepararCuentaRegresiva(datos.wedding_date);
 
-  // El administrador ve un aviso para volver; el modo de prueba es solo para parejas.
+  // El administrador ve un aviso para volver.
   const aviso = document.getElementById("admin-banner");
   aviso.hidden = role !== "admin";
   if (role === "admin") {
@@ -407,7 +407,6 @@ async function cargar() {
     volver.textContent = "← Todas las bodas";
     aviso.replaceChildren(volver, document.createTextNode(" · Estás administrando esta boda."));
   }
-  document.getElementById("test-section").hidden = role === "admin";
 
   // Resumen
   const confirmaron = guests.filter((g) => g.status === "confirmed");
@@ -632,11 +631,6 @@ document.getElementById("filter").addEventListener("input", dibujarTabla);
 document.getElementById("logout").addEventListener("click", async () => {
   await fetch("/api/logout", { method: "POST" });
   window.location.href = "/login";
-});
-
-document.getElementById("test").addEventListener("click", async () => {
-  await fetch("/api/test-rsvp", { method: "POST" });
-  cargar();
 });
 
 llenarPases(document.getElementById("add-passes"), 1);
