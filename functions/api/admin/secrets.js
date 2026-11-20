@@ -18,5 +18,7 @@ export async function onRequestGet({ request, env }) {
   return jsonResponse({
     session_secret: await origen(env.SESSION_SECRET, env, "session_secret"),
     admin_code: await origen(env.ADMIN_CODE, env, "admin_code"),
+    // Solo los NOMBRES de lo que el sitio puede ver (nunca los valores), para detectar errores de escritura.
+    nombres_visibles: Object.keys(env).sort(),
   });
 }
