@@ -18,7 +18,8 @@ export async function onRequestPost({ request, env }) {
   if (!code) return jsonResponse({ error: "code_required" }, 400);
 
   // ¿Es el código del administrador?
-  const adminCode = String((await getSetting(env, "admin_code")) ?? "").trim().toLowerCase();
+  // Primero la variable ADMIN_CODE de Cloudflare, si existe; si no, el ajuste "admin_code" de la base de datos.
+  const adminCode = String(env.ADMIN_CODE || (await getSetting(env, "admin_code")) || "").trim().toLowerCase();
   const isAdmin = adminCode.length >= MIN_ADMIN_CODE && (await safeEqual(code, adminCode));
 
   let inviteId = null;
