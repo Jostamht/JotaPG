@@ -66,53 +66,42 @@ Sube ese cambio a GitHub. (Ya está puesto el de la base de datos actual.)
 npx wrangler d1 execute jotapg-db --remote --file=schema.sql
 ```
 
-### 3. Crear el secreto de las sesiones
+### 3. Crear los secretos en Cloudflare
 
-Es un texto largo y privado con el que se firman las cookies. Genera uno:
+Son dos textos privados. Se guardan en **Workers y Pages**, tu proyecto, **Settings**,
+**Variables and Secrets**, en el ambiente **Production**, como variables de tipo **Secret**:
 
-```
-openssl rand -hex 32
-```
+- `SESSION_SECRET`: un texto largo y al azar con el que se firman las cookies (40 caracteres o más).
+- `ADMIN_CODE`: tu clave de administrador (ver abajo).
 
-Hay dos formas de guardarlo; basta con una.
+Genera el primero con un administrador de contraseñas o con `openssl rand -hex 32`.
+Cloudflare no vuelve a mostrar el valor de un secreto, así que guárdalos también en tu administrador
+de contraseñas. No los subas a GitHub ni los compartas.
 
-**Opción A: en la base de datos** (no depende de la configuración de Cloudflare). En la consola de `jotapg-db`:
-
-```
-CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
-INSERT INTO settings (key, value) VALUES ('session_secret', lower(hex(randomblob(32))));
-```
-
-El secreto se crea solo dentro de la base de datos y nadie lo ve.
-
-**Opción B: en Cloudflare.** **Workers y Pages**, tu proyecto, **Settings**, **Variables and Secrets**.
-Agrega una variable de tipo **Secret** llamada `SESSION_SECRET` con el texto de arriba.
-Si existe, tiene prioridad sobre la opción A.
-
-No subas el secreto a GitHub ni lo compartas.
+Los secretos solo llegan a los despliegues que se hacen **después** de guardarlos: haz un despliegue
+nuevo (**Deployments**, el último, **Retry deployment**) y espera a que diga Success.
 
 ### 4. Publicar
 
-Cloudflare publica solo cada vez que subes algo a GitHub. Después de agregar el secreto,
+Cloudflare publica solo cada vez que subes algo a GitHub. Si cambiaste un secreto,
 haz un nuevo despliegue para que lo tome.
 
 ## Tu clave de administrador
 
-Se crea sola al correr `schema.sql` (o la migración 002, si la base de datos ya existía). Para verla,
-en la consola de `jotapg-db`:
+Es el secreto `ADMIN_CODE` de Cloudflare (paso 3). Con ella entras en `/login` y llegas a `/admin`.
+Reglas: mínimo 12 caracteres, solo minúsculas y números (el login pasa lo que escribes a minúsculas),
+por ejemplo varias palabras sueltas unidas con guiones. Guárdala en tu administrador de contraseñas.
 
-```
-SELECT value FROM settings WHERE key = 'admin_code';
-```
-
-Guárdala en un lugar seguro. Con ella entras en `/login` y llegas a `/admin`. Si prefieres una propia
-(mínimo 12 caracteres):
-
-```
-UPDATE settings SET value = 'tu-clave-larga-aqui' WHERE key = 'admin_code';
-```
-
+Para cambiarla: edita el secreto `ADMIN_CODE` en Cloudflare y haz un despliegue nuevo.
 Dura 1 día de sesión; después se vuelve a escribir.
+
+Si todavía no existe la variable `ADMIN_CODE`, el sitio usa como respaldo el ajuste `admin_code`
+de la tabla `settings` (que crea `schema.sql`). Una vez que `ADMIN_CODE` funciona, esas copias de la
+base de datos se pueden borrar:
+
+```
+DELETE FROM settings WHERE key IN ('session_secret', 'admin_code');
+```
 
 ## Crear una boda nueva
 
