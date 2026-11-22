@@ -2,7 +2,7 @@
 // Entran con un código. Puede ser el de una pareja (lista "couples") o el del
 // administrador (ajuste "admin_code"). Si existe, damos la cookie de sesión.
 
-import { makeSessionCookie, jsonResponse, getSetting, safeEqual } from "../../lib/session.js";
+import { makeSessionCookie, jsonResponse, getAdminCode, safeEqual } from "../../lib/session.js";
 
 const MIN_ADMIN_CODE = 12;
 
@@ -18,8 +18,7 @@ export async function onRequestPost({ request, env }) {
   if (!code) return jsonResponse({ error: "code_required" }, 400);
 
   // ¿Es el código del administrador?
-  // Primero la variable ADMIN_CODE de Cloudflare, si existe; si no, el ajuste "admin_code" de la base de datos.
-  const adminCode = String(env.ADMIN_CODE || (await getSetting(env, "admin_code")) || "").trim().toLowerCase();
+  const adminCode = await getAdminCode(env);
   const isAdmin = adminCode.length >= MIN_ADMIN_CODE && (await safeEqual(code, adminCode));
 
   let inviteId = null;
@@ -34,8 +33,8 @@ export async function onRequestPost({ request, env }) {
 
   try {
     const cookie = isAdmin
-      ? await makeSessionCookie(env, null, "admin")
-      : await makeSessionCookie(env, inviteId);
+      ? await makeSessionCookie(env, null, "admin", adminCode)
+      : await makeSessionCookie(env, inviteId, "couple", code);
     return jsonResponse({ ok: true, role: isAdmin ? "admin" : "couple" }, 200, { "Set-Cookie": cookie });
   } catch (err) {
     // El código era correcto pero no se pudo crear la sesión.
