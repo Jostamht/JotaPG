@@ -134,6 +134,8 @@ Los agrega la pareja (o tú) desde el panel, sin tocar la base de datos:
 Reglas: hace falta nombre y apellido (la invitación busca por los dos). Las tildes y las mayúsculas no
 importan («Juan Perez» es lo mismo que «Juan Pérez»), y por eso no puede haber dos invitados con el mismo
 nombre en una boda: si dos personas se llaman igual, agrega un apellido o una inicial a una de ellas.
+Para encontrarse basta con escribir el comienzo de cada palabra («Luis Quis» encuentra a «Luis Quispe»), pero
+con al menos dos palabras de 3 letras o más; así nadie puede sacar nombres probando letras sueltas.
 
 ## Actualizar una base de datos que ya existe
 
@@ -204,4 +206,5 @@ Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
   (`lib/attempts.js`, tabla `rsvp_attempts`, migración 005). Una confirmación correcta borra los intentos.
 
 La búsqueda de nombre (`/api/guest-lookup`) todavía no exige Turnstile: se pregunta en cada pausa al escribir
-y el token sirve una sola vez. Está pendiente para más adelante.
+y el token sirve una sola vez. Lo que sí hace es exigir dos palabras de 3 letras o más y no devolver nunca el
+celular. Un límite de pedidos por dirección queda pendiente para más adelante.

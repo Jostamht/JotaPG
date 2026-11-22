@@ -30,7 +30,7 @@ export async function onRequestPost({ request, env }) {
   const query = String(data.name ?? "");
   if (query.length > 100) return json({ found: false, ambiguous: false }, 200, origin);
 
-  const { guest, ambiguous } = findGuest(await getGuests(env, inviteId), query);
+  const { guest, ambiguous } = findGuest(await getGuests(env, inviteId, false), query);
   if (!guest) return json({ found: false, ambiguous }, 200, origin);
 
   return json({ found: true, name: guest.name, passes: guest.passes }, 200, origin);
