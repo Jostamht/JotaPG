@@ -70,7 +70,8 @@ export async function onRequestPost({ request, env }) {
       : json({ error: "wrong_phone" }, 403, origin);
   }
 
-  if (!Number.isInteger(guestsCount) || guestsCount < 0 || guestsCount > guest.passes) {
+  // Si viene, tiene que venir al menos 1 persona (la invitación manda «no vengo» como attending: false).
+  if (!Number.isInteger(guestsCount) || guestsCount < (attending ? 1 : 0) || guestsCount > guest.passes) {
     return json({ error: "invalid_guests_count" }, 400, origin);
   }
 
