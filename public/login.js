@@ -2,6 +2,20 @@
 
 const form = document.getElementById("login-form");
 const errorBox = document.getElementById("error");
+const codeInput = document.getElementById("code");
+const toggleBtn = document.getElementById("toggle-code");
+
+// El botón del ojo muestra u oculta el código mientras se escribe.
+toggleBtn.addEventListener("click", () => {
+  const visible = codeInput.type === "password";
+  codeInput.type = visible ? "text" : "password";
+  toggleBtn.classList.toggle("on", visible);
+  toggleBtn.setAttribute("aria-pressed", String(visible));
+  const texto = visible ? "Ocultar el código" : "Mostrar el código";
+  toggleBtn.setAttribute("aria-label", texto);
+  toggleBtn.title = texto;
+  codeInput.focus();
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
