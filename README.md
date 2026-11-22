@@ -188,7 +188,8 @@ npx wrangler d1 execute jotapg-db --remote --command "INSERT INTO guests (invite
 - La sesión de las parejas dura 7 días; la tuya, 1 día.
 - Cada pareja solo puede tocar su propia boda, aunque alguien cambie la dirección del navegador.
 - Al confirmar, la API revisa el celular completo y que los pases no pasen de los del invitado. El número vale
-  con o sin el código de país («71234567» es lo mismo que «59171234567»).
+  con o sin el código de país («71234567» es lo mismo que «59171234567»), pero los dígitos que sobran delante
+  tienen que ser un código de país de verdad: escribir solo el final del número o inventar dígitos no sirve.
   Si el mismo invitado vuelve a confirmar, su respuesta nueva reemplaza a la anterior.
 
 ## Protección contra spam
