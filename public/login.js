@@ -22,7 +22,9 @@ form.addEventListener("submit", async (event) => {
       window.location.href = body.role === "admin" ? "/admin" : "/dashboard";
       return;
     }
-    if (res.status === 401) {
+    if (res.status === 429) {
+      errorBox.textContent = "Demasiados intentos con un código equivocado. Espera unos 15 minutos e inténtalo de nuevo.";
+    } else if (res.status === 401) {
       errorBox.textContent = "Ese código no es correcto. Revísalo e inténtalo de nuevo.";
     } else if (body.error === "missing_secret") {
       errorBox.textContent = "El código es correcto, pero falta configurar SESSION_SECRET en Cloudflare.";

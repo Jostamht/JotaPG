@@ -62,3 +62,11 @@ CREATE TABLE IF NOT EXISTS rsvp_attempts (
   locked_until INTEGER,
   PRIMARY KEY (invite_id, guest_id)
 );
+
+-- Límite de intentos al entrar (/login): ver lib/login-attempts.js
+CREATE TABLE IF NOT EXISTS login_attempts (
+  key          TEXT PRIMARY KEY,
+  fails        INTEGER NOT NULL DEFAULT 0,
+  last_fail    INTEGER NOT NULL,
+  locked_until INTEGER
+);

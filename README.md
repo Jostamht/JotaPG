@@ -148,6 +148,7 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/002-administrador.s
 npx wrangler d1 execute jotapg-db --remote --file=migrations/003-celular-completo.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/004-fecha-de-la-boda.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/005-bloqueo-por-intentos.sql
+npx wrangler d1 execute jotapg-db --remote --file=migrations/006-limite-de-entradas.sql
 ```
 
 - La `001` crea la lista de invitados y carga los de la muestra (`muestra-3`).
@@ -155,6 +156,7 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/005-bloqueo-por-int
 - La `003` cambia los últimos 4 dígitos del celular por el número completo.
 - La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
 - La `005` crea la tabla del bloqueo por celulares equivocados (anti-spam).
+- La `006` crea la tabla del límite de intentos al entrar (`/login`).
 
 También se pueden pegar en la consola de `jotapg-db` en Cloudflare, una por una.
 
@@ -185,6 +187,10 @@ npx wrangler d1 execute jotapg-db --remote --command "INSERT INTO guests (invite
 - El código de acceso funciona como una contraseña: quien lo tenga ve y maneja la lista de esa pareja.
   Se envía en privado a cada pareja. Si se filtra, en `/admin` usa **Código nuevo**: el anterior deja de servir.
 - Tu clave de administrador da acceso a todas las bodas: no la compartas.
+- **Límite al entrar:** tras 10 códigos equivocados desde la misma conexión, el acceso desde ahí se pausa 15 minutos
+  (`lib/login-attempts.js`, tabla `login_attempts`, migración 006). Mientras está pausado, ni el código correcto
+  entra. Una entrada correcta borra el conteo. Para levantar la pausa de todos: `DELETE FROM login_attempts;` en la
+  consola de `jotapg-db`. Si la tabla no existe todavía, no se limita nada.
 - La sesión de las parejas dura 7 días; la tuya, 1 día. Si cambias un código (**Código nuevo** en `/admin`, o
   `ADMIN_CODE` en Cloudflare), las sesiones que ya estaban abiertas con el código anterior se cierran al instante.
 - Cada pareja solo puede tocar su propia boda, aunque alguien cambie la dirección del navegador.

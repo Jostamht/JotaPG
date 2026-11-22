@@ -3,6 +3,7 @@
 // administrador (ajuste "admin_code"). Si existe, damos la cookie de sesión.
 
 import { makeSessionCookie, jsonResponse, getAdminCode, safeEqual } from "../../lib/session.js";
+import { attemptKey, isLoginBlocked, recordLoginFail, clearLoginFails } from "../../lib/login-attempts.js";
 
 const MIN_ADMIN_CODE = 12;
 
@@ -17,6 +18,11 @@ export async function onRequestPost({ request, env }) {
   const code = String(data.code ?? "").trim().toLowerCase();
   if (!code) return jsonResponse({ error: "code_required" }, 400);
 
+  // Límite de intentos: tras varios códigos equivocados desde la misma conexión, se pausa
+  // (se revisa ANTES de mirar el código, así probar más códigos no sirve de nada).
+  const key = await attemptKey(request.headers.get("CF-Connecting-IP"));
+  if (await isLoginBlocked(env, key)) return jsonResponse({ error: "too_many_attempts" }, 429);
+
   // ¿Es el código del administrador?
   const adminCode = await getAdminCode(env);
   const isAdmin = adminCode.length >= MIN_ADMIN_CODE && (await safeEqual(code, adminCode));
@@ -27,9 +33,15 @@ export async function onRequestPost({ request, env }) {
       .prepare("SELECT invite_id FROM couples WHERE access_code = ?")
       .bind(code)
       .first();
-    if (!couple) return jsonResponse({ error: "wrong_code" }, 401);
+    if (!couple) {
+      const nowBlocked = await recordLoginFail(env, key);
+      return nowBlocked
+        ? jsonResponse({ error: "too_many_attempts" }, 429)
+        : jsonResponse({ error: "wrong_code" }, 401);
+    }
     inviteId = couple.invite_id;
   }
+  await clearLoginFails(env, key);
 
   try {
     const cookie = isAdmin
