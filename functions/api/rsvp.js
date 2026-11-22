@@ -37,6 +37,10 @@ export async function onRequestPost({ request, env }) {
 
   // Anti-spam: Cloudflare debe confirmar que quien envía es una persona.
   const human = await verifyTurnstile(env, data.turnstile_token, request.headers.get("CF-Connecting-IP"));
+  if (human.notConfigured) {
+    console.error("rsvp: falta el secreto TURNSTILE_SECRET en Cloudflare; no se aceptan confirmaciones.");
+    return json({ error: "turnstile_not_configured" }, 503, origin);
+  }
   if (!human.ok) return json({ error: "turnstile_failed" }, 403, origin);
 
   const typedName = String(data.guest_name ?? "").trim();

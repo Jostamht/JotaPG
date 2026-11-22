@@ -206,9 +206,13 @@ Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
 - **Turnstile (Cloudflare):** la invitación muestra una verificación casi invisible y manda su resultado al
   confirmar; JotaPG le pregunta a Cloudflare si es verdadero (`lib/turnstile.js`). La clave PÚBLICA del widget va
   en el `invite.js` de cada invitación (`turnstileSiteKey`, es la misma para todas) y la clave SECRETA es el secreto
-  `TURNSTILE_SECRET` de Cloudflare. Si ese secreto no existe, no se exige nada.
+  `TURNSTILE_SECRET` de Cloudflare. Si ese secreto no existe, no se acepta ninguna confirmación (error 503)
+  hasta que se ponga: es mejor que una invitación no confirme por un rato a que quede abierta a los robots.
   El widget solo funciona en las direcciones que tenga en su lista de hostnames: **cada invitación nueva
-  hay que agregarla ahí** (Cloudflare, Turnstile, el widget, Hostname Management). El plan gratis permite
+  hay que agregarla ahí** (Cloudflare, Turnstile, el widget, Hostname Management). `/admin` te muestra la
+  dirección lista para copiar al crear la boda (y en un botón de cada boda); si cambias la dirección de una
+  boda, también te lo recuerda. Sin ese paso la invitación avisa que no pudo comprobar que eres una persona.
+  El plan gratis permite
   10 por widget y 20 widgets.
 - **Bloqueo:** tras 5 celulares equivocados para un mismo invitado, ese invitado queda bloqueado 15 minutos
   (`lib/attempts.js`, tabla `rsvp_attempts`, migración 005). Una confirmación correcta borra los intentos.

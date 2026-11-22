@@ -64,6 +64,15 @@ function mensajeParaLaPareja(boda) {
   );
 }
 
+// Solo el nombre del sitio (sin https), tal como lo pide la lista de Turnstile en Cloudflare.
+function direccionParaTurnstile(boda) {
+  try {
+    return new URL(boda.allowed_origin).hostname;
+  } catch {
+    return "";
+  }
+}
+
 function configuracionDeLaInvitacion(inviteId) {
   return (
     `lookupUrl: '${window.location.origin}/api/guest-lookup',\n` +
@@ -165,6 +174,13 @@ function tarjeta(boda) {
       copiar(configuracionDeLaInvitacion(boda.invite_id), "datos para invite.js")
     )
   );
+  if (direccionParaTurnstile(boda)) {
+    botones.appendChild(
+      boton("Copiar dirección para Turnstile", "btn-ghost", () =>
+        copiar(direccionParaTurnstile(boda), "dirección para Turnstile")
+      )
+    );
+  }
   botones.appendChild(boton("Editar", "btn-ghost", () => abrirEdicion(boda)));
   botones.appendChild(boton("Código nuevo", "btn-ghost", () => codigoNuevo(boda)));
   botones.appendChild(boton("Eliminar", "btn-danger", () => eliminar(boda)));
@@ -224,6 +240,20 @@ function mostrarResultado(boda) {
   caja.appendChild(texto("p", "", "En el archivo invite.js de su invitación, deja estas tres líneas:"));
   caja.appendChild(texto("pre", "snippet", configuracionDeLaInvitacion(boda.invite_id)));
 
+  // Sin este paso la verificación anti-spam no arranca en esa invitación y nadie podría confirmar.
+  const host = direccionParaTurnstile(boda);
+  if (host) {
+    caja.appendChild(
+      texto(
+        "p",
+        "",
+        "Un paso más, en Cloudflare: agrega esta dirección a la lista de Turnstile (Turnstile → tu widget → " +
+          "Hostname Management → Add hostname). Sin esto, nadie podrá confirmar en esa invitación:"
+      )
+    );
+    caja.appendChild(texto("pre", "snippet", host));
+  }
+
   const botones = document.createElement("div");
   botones.className = "buttons";
   botones.style.display = "flex";
@@ -240,6 +270,9 @@ function mostrarResultado(boda) {
       copiar(configuracionDeLaInvitacion(boda.invite_id), "datos para invite.js")
     )
   );
+  if (host) {
+    botones.appendChild(boton("Copiar dirección para Turnstile", "btn-ghost", () => copiar(host, "dirección para Turnstile")));
+  }
   botones.appendChild(
     boton("Copiar mensaje para la pareja", "btn-ghost", () =>
       copiar(mensajeParaLaPareja(boda), "mensaje para la pareja")
@@ -284,7 +317,15 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
     return;
   }
   dialogo.close();
-  aviso("Cambios guardados.");
+  // Si cambió la dirección de la invitación, la lista de Turnstile también hay que ponerla al día.
+  const cambioDireccion = datos.allowed_origin !== editando.allowed_origin;
+  const host = direccionParaTurnstile(datos);
+  aviso(
+    cambioDireccion && host
+      ? `Cambios guardados. La dirección cambió: agrega ${host} a la lista de Turnstile en Cloudflare ` +
+          "(Turnstile → tu widget → Hostname Management), o la invitación no podrá confirmar."
+      : "Cambios guardados."
+  );
   cargar();
 });
 
