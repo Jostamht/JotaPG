@@ -238,43 +238,32 @@ function dibujarTabla() {
 
 // --- Descargar la lista ----------------------------------------------------------
 
-// Una celda del archivo. Se separa con «;» porque así lo espera Excel en español.
-// Si un texto empieza con = + - @ se le antepone una comilla: así Excel no lo toma como fórmula
-// (el mensaje lo escribe el invitado, no la pareja).
-function celdaCsv(valor, esTexto) {
-  let t = String(valor ?? "").replace(/\s*[\r\n]+\s*/g, " ").trim();
-  if (esTexto && /^[=+\-@\t]/.test(t)) t = "'" + t;
-  return /[";]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
-}
-
-function listaEnCsv() {
+// Arma el archivo de Excel (.xlsx) con TODOS los invitados, no solo los que se ven en la búsqueda.
+// Lo escribe public/xlsx.js en el navegador; no se manda nada al servidor.
+function descargarLista() {
   const filas = [["Invitado", "Celular", "Pases", "Estado", "Personas que vienen", "Mensaje"]];
   for (const g of invitados) {
     filas.push([
-      celdaCsv(g.name, true),
-      celdaCsv(g.phone),
-      celdaCsv(g.passes),
-      celdaCsv(ESTADOS[g.status]),
-      celdaCsv(g.status === "confirmed" ? g.guests_count : 0),
-      celdaCsv(g.message, true),
+      g.name,
+      g.phone || "", // texto, para que Excel no le cambie el formato al número
+      g.passes,
+      ESTADOS[g.status],
+      g.status === "confirmed" ? g.guests_count : 0,
+      g.message || "",
     ]);
   }
-  // El \ufeff del principio hace que Excel lea bien las tildes y la ñ.
-  return "\ufeff" + filas.map((f) => f.join(";")).join("\r\n") + "\r\n";
-}
+  const archivo = window.crearXlsx({ hoja: "Invitados", anchos: [28, 16, 8, 16, 20, 50], filas });
 
-function descargarLista() {
-  const archivo = new Blob([listaEnCsv()], { type: "text/csv;charset=utf-8" });
   const enlace = document.createElement("a");
   enlace.href = URL.createObjectURL(archivo);
-  enlace.download = "invitados-" + (idBoda || "boda") + ".csv";
+  enlace.download = "invitados-" + (idBoda || "boda") + ".xlsx";
   document.body.appendChild(enlace);
   enlace.click();
   enlace.remove();
   setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
 }
 
-document.getElementById("download-csv").addEventListener("click", descargarLista);
+document.getElementById("download-xlsx").addEventListener("click", descargarLista);
 
 // --- Cuenta regresiva ----------------------------------------------------------
 

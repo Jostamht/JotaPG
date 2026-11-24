@@ -30,6 +30,7 @@ public/                 Lo que se ve en el navegador
   admin.html / .js      Página del administrador: todas las bodas
   style.css             Colores y tipografías
   year.js               Pone el año en el pie de la página principal
+  xlsx.js               Arma el archivo de Excel de la lista de invitados
   _headers              Reglas de seguridad que el servidor manda con cada página
 functions/api/          La recepción (código que corre en Cloudflare)
   login.js              Revisa el código y da la cookie
@@ -132,11 +133,12 @@ Los agrega la pareja (o tú) desde el panel, sin tocar la base de datos:
 - **Editar:** corrige el nombre, los pases o el celular. No deja bajar los pases por debajo de lo que ya
   confirmó.
 - **Eliminar:** borra al invitado y, si ya había respondido, también su respuesta.
-- **Descargar la lista:** el botón «Descargar la lista (Excel)» baja un archivo `.csv` con todos los invitados
-  (nombre, celular, pases, estado, cuántas personas vienen y su mensaje). Se arma en el navegador con lo que ya
-  está en pantalla, no hay nada nuevo en el servidor. Usa «;» como separador y acentos correctos para que Excel en
-  español lo abra bien; si alguien escribió un mensaje que empieza con `=`, `+`, `-` o `@`, se le antepone una comilla
-  para que Excel no lo trate como fórmula.
+- **Descargar la lista:** el botón «Descargar la lista (Excel)» baja un archivo `.xlsx` con todos los invitados
+  (nombre, celular, pases, estado, cuántas personas vienen y su mensaje), con el encabezado en negrita, la primera
+  fila fija y un filtro. Se arma en el navegador con lo que ya está en pantalla (`public/xlsx.js`), sin librerías
+  de afuera y sin nada nuevo en el servidor. El celular se guarda como texto para que Excel no le cambie el formato,
+  y los mensajes que escriben los invitados quedan siempre como texto: aunque empiecen con `=`, Excel no los toma
+  como fórmula.
 
 Reglas: hace falta nombre y apellido (la invitación busca por los dos). Las tildes y las mayúsculas no
 importan («Juan Perez» es lo mismo que «Juan Pérez»), y por eso no puede haber dos invitados con el mismo
