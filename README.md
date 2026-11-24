@@ -29,6 +29,8 @@ public/                 Lo que se ve en el navegador
   dashboard.html / .js  Panel de la pareja (también lo abre el administrador, con ?c=)
   admin.html / .js      Página del administrador: todas las bodas
   style.css             Colores y tipografías
+  year.js               Pone el año en el pie de la página principal
+  _headers              Reglas de seguridad que el servidor manda con cada página
 functions/api/          La recepción (código que corre en Cloudflare)
   login.js              Revisa el código y da la cookie
   logout.js             Cierra la sesión
@@ -220,3 +222,14 @@ Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
 La búsqueda de nombre (`/api/guest-lookup`) todavía no exige Turnstile: se pregunta en cada pausa al escribir
 y el token sirve una sola vez. Lo que sí hace es exigir dos palabras de 3 letras o más y no devolver nunca el
 celular. Un límite de pedidos por dirección queda pendiente para más adelante.
+
+## Reglas de seguridad del navegador
+
+`public/_headers` lo lee Cloudflare Pages solo y agrega unas instrucciones a cada página: que nadie pueda
+mostrar JotaPG dentro de otro sitio (`X-Frame-Options`), que el navegador no adivine tipos de archivo, que se
+mande menos información al hacer clic en un enlace, y una lista de dónde puede cargar código la página
+(`Content-Security-Policy`): solo desde JotaPG, y las tipografías desde Google Fonts. Si algún día agregas algo
+que venga de otro sitio (un script, una tipografía, imágenes de afuera), la página lo va a bloquear hasta que
+lo agregues a esa lista. Por la misma razón las páginas no llevan scripts ni estilos escritos dentro del HTML:
+van en archivos aparte (por eso existe `year.js`). Si algo se ve roto después de un cambio, abre la consola del
+navegador (F12): el mensaje dice qué regla lo bloqueó.
