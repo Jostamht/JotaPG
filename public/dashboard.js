@@ -236,6 +236,46 @@ function dibujarTabla() {
   document.getElementById("no-match").hidden = !(busqueda && invitados.length > 0 && visibles.length === 0);
 }
 
+// --- Descargar la lista ----------------------------------------------------------
+
+// Una celda del archivo. Se separa con «;» porque así lo espera Excel en español.
+// Si un texto empieza con = + - @ se le antepone una comilla: así Excel no lo toma como fórmula
+// (el mensaje lo escribe el invitado, no la pareja).
+function celdaCsv(valor, esTexto) {
+  let t = String(valor ?? "").replace(/\s*[\r\n]+\s*/g, " ").trim();
+  if (esTexto && /^[=+\-@\t]/.test(t)) t = "'" + t;
+  return /[";]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
+}
+
+function listaEnCsv() {
+  const filas = [["Invitado", "Celular", "Pases", "Estado", "Personas que vienen", "Mensaje"]];
+  for (const g of invitados) {
+    filas.push([
+      celdaCsv(g.name, true),
+      celdaCsv(g.phone),
+      celdaCsv(g.passes),
+      celdaCsv(ESTADOS[g.status]),
+      celdaCsv(g.status === "confirmed" ? g.guests_count : 0),
+      celdaCsv(g.message, true),
+    ]);
+  }
+  // El \ufeff del principio hace que Excel lea bien las tildes y la ñ.
+  return "\ufeff" + filas.map((f) => f.join(";")).join("\r\n") + "\r\n";
+}
+
+function descargarLista() {
+  const archivo = new Blob([listaEnCsv()], { type: "text/csv;charset=utf-8" });
+  const enlace = document.createElement("a");
+  enlace.href = URL.createObjectURL(archivo);
+  enlace.download = "invitados-" + (idBoda || "boda") + ".csv";
+  document.body.appendChild(enlace);
+  enlace.click();
+  enlace.remove();
+  setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
+}
+
+document.getElementById("download-csv").addEventListener("click", descargarLista);
+
 // --- Cuenta regresiva ----------------------------------------------------------
 
 let reloj = null;
@@ -426,6 +466,7 @@ async function cargar() {
   // Invitados de la lista
   document.getElementById("empty").hidden = guests.length !== 0;
   document.getElementById("filter").hidden = guests.length < 8;
+  document.getElementById("download-box").hidden = guests.length === 0;
   dibujarTabla();
 
   // Respuestas sueltas (no están en la lista)

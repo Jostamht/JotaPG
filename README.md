@@ -132,6 +132,11 @@ Los agrega la pareja (o tú) desde el panel, sin tocar la base de datos:
 - **Editar:** corrige el nombre, los pases o el celular. No deja bajar los pases por debajo de lo que ya
   confirmó.
 - **Eliminar:** borra al invitado y, si ya había respondido, también su respuesta.
+- **Descargar la lista:** el botón «Descargar la lista (Excel)» baja un archivo `.csv` con todos los invitados
+  (nombre, celular, pases, estado, cuántas personas vienen y su mensaje). Se arma en el navegador con lo que ya
+  está en pantalla, no hay nada nuevo en el servidor. Usa «;» como separador y acentos correctos para que Excel en
+  español lo abra bien; si alguien escribió un mensaje que empieza con `=`, `+`, `-` o `@`, se le antepone una comilla
+  para que Excel no lo trate como fórmula.
 
 Reglas: hace falta nombre y apellido (la invitación busca por los dos). Las tildes y las mayúsculas no
 importan («Juan Perez» es lo mismo que «Juan Pérez»), y por eso no puede haber dos invitados con el mismo
