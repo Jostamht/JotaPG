@@ -1,1 +1,9 @@
+# Ejemplo para probar en tu computadora: copia este archivo como .dev.vars (ese no se sube a GitHub).
+# Son valores falsos solo para pruebas locales. Los secretos de verdad viven únicamente en Cloudflare:
+# nunca los pegues aquí.
 SESSION_SECRET=cualquier-texto-largo-solo-para-pruebas-locales
+# Clave de administrador de prueba (minúsculas y números, 12 caracteres o más) para entrar a /admin en local.
+ADMIN_CODE=admin-de-prueba-local
+# Clave de prueba de Cloudflare Turnstile: siempre aprueba la verificación. Sin esta línea, toda
+# confirmación da el error 503 (turnstile_not_configured).
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA

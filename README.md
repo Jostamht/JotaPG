@@ -8,7 +8,9 @@ y ve solo sus respuestas.
 
 ## Cómo funciona
 
-- **Base de datos:** tres listas, `couples` (las parejas), `guests` (los invitados de cada pareja) y `rsvps` (las respuestas).
+- **Base de datos:** seis listas. Las tres principales son `couples` (las parejas), `guests` (los invitados de cada
+  pareja) y `rsvps` (las respuestas). `rsvp_attempts` y `login_attempts` cuentan los intentos equivocados (anti-spam)
+  y `settings` guarda ajustes de respaldo que hoy no se usan mientras existan los secretos de Cloudflare.
 - **API (la recepción):** `functions/api/`. Recibe pedidos, los revisa y lee o escribe en la base de datos.
 - **Lista de invitados:** vive en la base de datos, no en la página de la invitación. El formulario le pregunta
   a la API quién es el invitado y la API revisa el celular y los pases al confirmar. Nadie puede ver la lista completa.
@@ -29,6 +31,8 @@ public/                 Lo que se ve en el navegador
   dashboard.html / .js  Panel de la pareja (también lo abre el administrador, con ?c=)
   admin.html / .js      Página del administrador: todas las bodas
   style.css             Colores y tipografías
+  dialog.js             Las ventanas de confirmación del panel (borrar, código nuevo)
+  theme.js              El botón de modo claro y oscuro
   year.js               Pone el año en el pie de la página principal
   xlsx.js               Arma el archivo de Excel de la lista de invitados
   _headers              Reglas de seguridad que el servidor manda con cada página
@@ -45,9 +49,13 @@ lib/auth.js             Decide quién pide algo y de qué boda se trata
 lib/invite-api.js       Lo que comparten rsvp.js y guest-lookup.js (permisos y búsqueda por nombre)
 lib/guests.js           Reglas de los invitados (nombre y apellido, pases, celular, sin repetidos)
 lib/couples.js          Códigos de acceso, nombres cortos y direcciones de las bodas
+lib/turnstile.js        Le pregunta a Cloudflare si la verificación anti-spam de una confirmación es verdadera
+lib/attempts.js         Cuenta los celulares equivocados de cada invitado (bloqueo de 15 minutos)
+lib/login-attempts.js   Cuenta los códigos equivocados en /login (pausa de 15 minutos)
 schema.sql              Las listas de la base de datos (para empezar de cero)
 migrations/             Cambios para una base de datos que ya existe
 wrangler.toml           Conecta el código con la base de datos
+.dev.vars.example       Ejemplo de los secretos para probar en tu computadora (se copia como .dev.vars)
 ```
 
 ## Puesta en marcha (una sola vez)
@@ -71,7 +79,7 @@ npx wrangler d1 execute jotapg-db --remote --file=schema.sql
 
 ### 3. Crear los secretos en Cloudflare
 
-Son dos textos privados. Se guardan en **Workers y Pages**, tu proyecto, **Settings**,
+Son tres textos privados. Se guardan en **Workers y Pages**, tu proyecto, **Settings**,
 **Variables and Secrets**, en el ambiente **Production**, como variables de tipo **Secret**:
 
 - `SESSION_SECRET`: un texto largo y al azar con el que se firman las cookies (40 caracteres o más).
@@ -114,7 +122,7 @@ DELETE FROM settings WHERE key IN ('session_secret', 'admin_code');
    (por ejemplo `https://juancarla.pages.dev`). El código de la pareja y el nombre corto se crean solos.
 3. Al crearla aparecen tres líneas (`lookupUrl`, `rsvpUrl` e `inviteId`). Pégalas en el `invite.js`
    de su invitación (el resto de los pasos para armar la invitación está en el README de la plantilla,
-   `Muestra-3-Invitacion`).
+   `Muestra-1-Invitacion`).
 4. **Agregar invitados** te lleva a su lista. Ahí los agregas tú o se lo dejas a la pareja.
 5. **Copiar mensaje para la pareja** te deja listo el texto con el enlace y su código para enviarlo.
 
@@ -160,7 +168,8 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/005-bloqueo-por-int
 npx wrangler d1 execute jotapg-db --remote --file=migrations/006-limite-de-entradas.sql
 ```
 
-- La `001` crea la lista de invitados y carga los de la muestra (`muestra-3`).
+- La `001` crea la lista de invitados y carga dos de la muestra (`muestra-3`, la boda de la invitación de ejemplo).
+  Los invitados que se ven hoy en la demo (Invitado 1, 2 y 3) se agregaron después desde `/admin`.
 - La `002` crea tu clave de administrador.
 - La `003` cambia los últimos 4 dígitos del celular por el número completo.
 - La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
