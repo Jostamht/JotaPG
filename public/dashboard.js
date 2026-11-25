@@ -95,7 +95,6 @@ function notas(g) {
   const partes = [];
   // Invitados cargados cuando bastaban los últimos 4 dígitos: hay que completar el número.
   if (g.phone.replace(/\D/g, "").length < 7) partes.push("⚠ Falta el celular completo");
-  if (g.dietary) partes.push("Comida: " + g.dietary);
   if (g.message) partes.push("“" + g.message + "”");
   return partes.join(" · ") || "—";
 }
@@ -465,7 +464,6 @@ async function cargar() {
       r.guest_name,
       r.attending === 1 ? "Sí" : "No",
       r.attending === 1 ? r.guests_count : "—",
-      r.dietary || "—",
       r.message || "—",
     ])
   );
