@@ -1,7 +1,8 @@
 -- ============================================================
 -- Base de datos de JotaPG (Cloudflare D1)
--- Tres listas: "couples" (las parejas), "guests" (los invitados de cada pareja)
--- y "rsvps" (las respuestas).
+-- Tres listas principales: "couples" (las parejas), "guests" (los invitados de cada pareja)
+-- y "rsvps" (las respuestas), más dos para el anti-spam: "rsvp_attempts" y "login_attempts".
+-- Los secretos (SESSION_SECRET, ADMIN_CODE, TURNSTILE_SECRET) NO viven aquí: están solo en Cloudflare.
 -- ============================================================
 
 -- Lista 1: las parejas
@@ -43,16 +44,6 @@ CREATE TABLE IF NOT EXISTS rsvps (
 
 CREATE INDEX IF NOT EXISTS idx_rsvps_invite ON rsvps(invite_id);
 CREATE INDEX IF NOT EXISTS idx_rsvps_guest ON rsvps(guest_id);
-
--- Ajustes privados del sitio (por ejemplo, el secreto con el que se firman las sesiones)
-CREATE TABLE IF NOT EXISTS settings (
-  key   TEXT PRIMARY KEY,
-  value TEXT NOT NULL
-);
-
--- Tu clave de administrador (al azar). Para verla:
---   SELECT value FROM settings WHERE key = 'admin_code';
-INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_code', lower(hex(randomblob(16))));
 
 -- Bloqueo por celulares equivocados (anti-spam): ver lib/attempts.js
 CREATE TABLE IF NOT EXISTS rsvp_attempts (

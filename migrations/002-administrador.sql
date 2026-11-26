@@ -1,5 +1,8 @@
 -- ============================================================
 -- Migración 002: clave del administrador.
+-- HISTÓRICA: ya no hace falta. Desde noviembre de 2026 el código lee la clave de administrador
+-- solo del secreto ADMIN_CODE de Cloudflare y ya no mira la tabla "settings". Se deja tal cual
+-- porque ya se corrió; en una base nueva (schema.sql) esta tabla ni siquiera se crea.
 -- Se corre una sola vez, DESPUÉS de la 001 y antes de publicar el código nuevo.
 --
 --   npx wrangler d1 execute jotapg-db --remote --file=migrations/002-administrador.sql

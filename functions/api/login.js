@@ -1,6 +1,6 @@
 // POST /api/login
 // Entran con un código. Puede ser el de una pareja (lista "couples") o el del
-// administrador (ajuste "admin_code"). Si existe, damos la cookie de sesión.
+// administrador (el secreto ADMIN_CODE de Cloudflare). Si existe, damos la cookie de sesión.
 
 import { makeSessionCookie, jsonResponse, getAdminCode, safeEqual } from "../../lib/session.js";
 import { attemptKey, isLoginBlocked, recordLoginFail, clearLoginFails } from "../../lib/login-attempts.js";

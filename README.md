@@ -8,9 +8,9 @@ y ve solo sus respuestas.
 
 ## Cómo funciona
 
-- **Base de datos:** seis listas. Las tres principales son `couples` (las parejas), `guests` (los invitados de cada
-  pareja) y `rsvps` (las respuestas). `rsvp_attempts` y `login_attempts` cuentan los intentos equivocados (anti-spam)
-  y `settings` guarda ajustes de respaldo que hoy no se usan mientras existan los secretos de Cloudflare.
+- **Base de datos:** cinco listas. Las tres principales son `couples` (las parejas), `guests` (los invitados de cada
+  pareja) y `rsvps` (las respuestas). `rsvp_attempts` y `login_attempts` cuentan los intentos equivocados (anti-spam).
+  Los secretos no se guardan en la base de datos: viven solo en Cloudflare.
 - **API (la recepción):** `functions/api/`. Recibe pedidos, los revisa y lee o escribe en la base de datos.
 - **Lista de invitados:** vive en la base de datos, no en la página de la invitación. El formulario le pregunta
   a la API quién es el invitado y la API revisa el celular y los pases al confirmar. Nadie puede ver la lista completa.
@@ -107,13 +107,10 @@ por ejemplo varias palabras sueltas unidas con guiones. Guárdala en tu administ
 Para cambiarla: edita el secreto `ADMIN_CODE` en Cloudflare y haz un despliegue nuevo.
 Dura 1 día de sesión; después se vuelve a escribir.
 
-Si todavía no existe la variable `ADMIN_CODE`, el sitio usa como respaldo el ajuste `admin_code`
-de la tabla `settings` (que crea `schema.sql`). Una vez que `ADMIN_CODE` funciona, esas copias de la
-base de datos se pueden borrar:
-
-```
-DELETE FROM settings WHERE key IN ('session_secret', 'admin_code');
-```
+`ADMIN_CODE` es obligatorio: sin él nadie puede entrar como administrador. El sitio ya no guarda
+ninguna copia de las claves en la base de datos. Si tu base de datos es anterior a este cambio y todavía
+tiene la lista `settings` (la creaba la migración 002), el sitio ya no la lee; se puede dejar o borrar
+con `DROP TABLE IF EXISTS settings;`.
 
 ## Crear una boda nueva
 
@@ -170,7 +167,7 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/006-limite-de-entra
 
 - La `001` crea la lista de invitados y carga dos de la muestra (`muestra-3`, la boda de la invitación de ejemplo).
   Los invitados que se ven hoy en la demo (Invitado 1, 2 y 3) se agregaron después desde `/admin`.
-- La `002` crea tu clave de administrador.
+- La `002` creaba una clave de administrador de respaldo en la lista `settings`. Ya no se usa: la clave es el secreto `ADMIN_CODE` de Cloudflare.
 - La `003` cambia los últimos 4 dígitos del celular por el número completo.
 - La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
 - La `005` crea la tabla del bloqueo por celulares equivocados (anti-spam).
