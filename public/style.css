@@ -20,6 +20,13 @@
   --rojo-grafica: #d9485f;
   --gris-grafica: #cfcfcf;
   --codigo-fondo: #0a0a0a;
+  --codigo-texto: #f4f0ff;   /* letras del cuadro negro de código */
+  --rojo-solido: #b00020;    /* botón rojo de borrar (igual en claro y oscuro) */
+  --rojo-solido-hover: #8a0019;
+  --whatsapp: #1faa52;       /* verde del botón de WhatsApp */
+  --whatsapp-hover: #168a41;
+  --texto-sobre-color: #ffffff; /* letras blancas sobre los botones de color fuerte */
+  --sombra-dialogo: 0 20px 60px rgba(0, 0, 0, 0.25);
   color-scheme: light;
 }
 
@@ -45,6 +52,7 @@
   --rojo-grafica: #e5566d;
   --gris-grafica: #55555d;
   --codigo-fondo: #0d0d10;
+  --sombra-dialogo: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--linea);
   color-scheme: dark;
 }
 
@@ -200,7 +208,7 @@ details textarea { margin-bottom: 12px; }
 .btn-ghost { background: none; color: var(--negro); border: 1px solid var(--campo); }
 .btn-ghost:hover { background: var(--violeta-claro); color: var(--negro); }
 .btn-danger { background: none; color: var(--rojo); border: 1px solid var(--rojo-borde); }
-.btn-danger:hover { background: #b00020; color: #fff; }
+.btn-danger:hover { background: var(--rojo-solido); color: var(--texto-sobre-color); }
 a.btn-small {
   display: inline-block; padding: 6px 12px; font-size: 0.85rem; font-weight: 600;
   border-radius: 8px; text-decoration: none; background: var(--negro); color: var(--blanco);
@@ -221,8 +229,9 @@ a.btn-small:hover { background: var(--violeta); }
 dialog {
   border: 0; border-radius: 12px; padding: 24px;
   max-width: 420px; width: calc(100% - 32px);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--sombra-dialogo);
 }
+/* El telón (::backdrop) lleva el color escrito aquí y no en una variable: los navegadores más viejos no le pasan las variables. */
 dialog::backdrop { background: rgba(0, 0, 0, 0.4); }
 dialog h2 { margin-top: 0; }
 .dialog-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
@@ -239,7 +248,7 @@ dialog h2 { margin-top: 0; }
 .wedding .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
 .code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; background: var(--violeta-claro); padding: 2px 8px; border-radius: 6px; }
 .snippet {
-  background: var(--codigo-fondo); color: #f4f0ff; padding: 14px; border-radius: 8px;
+  background: var(--codigo-fondo); color: var(--codigo-texto); padding: 14px; border-radius: 8px;
   overflow-x: auto; font-size: 0.85rem; white-space: pre; margin: 8px 0;
 }
 .result { border-left: 3px solid var(--violeta); background: var(--violeta-fondo); padding: 16px 20px; margin-top: 16px; border-radius: 0 8px 8px 0; }
@@ -280,11 +289,11 @@ dialog h2 { margin-top: 0; }
 [hidden] { display: none !important; }
 
 /* Cuadro de confirmación propio (reemplaza los avisos del navegador) */
-.btn-danger-solid { background: #b00020; color: #fff; }
-.btn-danger-solid:hover { background: #8a0019; }
+.btn-danger-solid { background: var(--rojo-solido); color: var(--texto-sobre-color); }
+.btn-danger-solid:hover { background: var(--rojo-solido-hover); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 button:disabled:hover { background: var(--negro); }
-button.btn-danger-solid:disabled:hover { background: #b00020; }
+button.btn-danger-solid:disabled:hover { background: var(--rojo-solido); }
 .dialog-msg { margin: 0; color: var(--gris); white-space: pre-line; }
 dialog textarea { min-height: 96px; font-size: 0.9rem; }
 dialog[open] { animation: dialog-in 0.16s ease-out; }
@@ -329,8 +338,8 @@ td.phone { font-variant-numeric: tabular-nums; white-space: nowrap; }
 }
 
 /* Botón de WhatsApp en cada invitado */
-a.btn-wa { background: #1faa52; color: #fff; }
-a.btn-wa:hover { background: #168a41; }
+a.btn-wa { background: var(--whatsapp); color: var(--texto-sobre-color); }
+a.btn-wa:hover { background: var(--whatsapp-hover); }
 /* Ya se abrió el mensaje: el botón pasa de verde sólido a verde claro con ✓ */
 a.btn-wa.sent { background: var(--verde-fondo); color: var(--verde); box-shadow: inset 0 0 0 1px var(--verde-borde); }
 a.btn-wa.sent:hover { background: var(--verde-hover); }
@@ -398,7 +407,6 @@ a.btn-wa.sent:hover { background: var(--verde-hover); }
 /* Campos y cuadro de diálogo siguen el tema */
 input, select, textarea { background: var(--blanco); color: var(--negro); }
 dialog { background: var(--blanco); color: var(--negro); }
-:root[data-theme="dark"] dialog { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--linea); }
 :root[data-theme="dark"] dialog::backdrop { background: rgba(0, 0, 0, 0.65); }
 
 /* ---------- Entrada: código oculto con botón de ojo ---------- */
