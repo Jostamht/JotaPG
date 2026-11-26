@@ -5,6 +5,7 @@
 import { jsonResponse } from "../../../lib/session.js";
 import { resolveInvite } from "../../../lib/auth.js";
 import { cleanGuest, findDuplicate, listGuests } from "../../../lib/guests.js";
+import { forgetGuest } from "../../../lib/attempts.js";
 
 function guestId(params) {
   const id = Number(params.id);
@@ -76,6 +77,8 @@ export async function onRequestDelete({ request, env, params }) {
     env.DB.prepare("DELETE FROM rsvps WHERE guest_id = ?").bind(id),
     env.DB.prepare("DELETE FROM guests WHERE id = ? AND invite_id = ?").bind(id, couple.invite_id),
   ]);
+  // Y sus intentos de celular equivocado (aparte: si esa tabla no existe, el borrado igual vale).
+  await forgetGuest(env, couple.invite_id, id);
 
   return jsonResponse({ ok: true });
 }

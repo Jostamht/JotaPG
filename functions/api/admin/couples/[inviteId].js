@@ -6,6 +6,7 @@
 import { jsonResponse } from "../../../../lib/session.js";
 import { requireAdmin } from "../../../../lib/auth.js";
 import { normalizeOrigin, freeAccessCode, parseWeddingDate } from "../../../../lib/couples.js";
+import { forgetWedding } from "../../../../lib/attempts.js";
 
 export async function onRequestPut({ request, env, params }) {
   const { error } = await requireAdmin(request, env, { write: true });
@@ -98,6 +99,8 @@ export async function onRequestDelete({ request, env, params }) {
     env.DB.prepare("DELETE FROM guests WHERE invite_id = ?").bind(inviteId),
     env.DB.prepare("DELETE FROM couples WHERE invite_id = ?").bind(inviteId),
   ]);
+  // Y los intentos de celular equivocado de sus invitados (aparte: si esa tabla no existe, el borrado igual vale).
+  await forgetWedding(env, inviteId);
 
   return jsonResponse({ ok: true });
 }
