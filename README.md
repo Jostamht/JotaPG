@@ -34,6 +34,7 @@ public/                 Lo que se ve en el navegador
   dialog.js             Las ventanas de confirmación del panel (borrar, código nuevo)
   theme.js              El botón de modo claro y oscuro
   year.js               Pone el año en el pie de la página principal
+  favicon.svg / .ico    El ícono de la pestaña del navegador (y apple-touch-icon.png, el del celular)
   xlsx.js               Arma el archivo de Excel de la lista de invitados
   _headers              Reglas de seguridad que el servidor manda con cada página
 functions/api/          La recepción (código que corre en Cloudflare)
