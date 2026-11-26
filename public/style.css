@@ -1,3 +1,28 @@
+/* ---------- Tipografías (archivos propios en public/fonts/, sin pedirlas a Google) ----------
+   Manrope 800 para el logo; Plus Jakarta Sans 400 y 600 para el resto. Solo el juego "latin"
+   (incluye tildes, ñ, ¿ y ¡). Licencia SIL Open Font License: el texto está junto a los archivos. */
+@font-face {
+  font-family: "Manrope";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/manrope-latin-800-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/plus-jakarta-sans-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/plus-jakarta-sans-latin-600-normal.woff2") format("woff2");
+}
+
 /* ---------- Colores y tipografías (cámbialos aquí) ---------- */
 :root {
   --negro: #0a0a0a;

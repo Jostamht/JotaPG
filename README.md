@@ -30,7 +30,8 @@ public/                 Lo que se ve en el navegador
   login.html / .js      Entrada con código
   dashboard.html / .js  Panel de la pareja (también lo abre el administrador, con ?c=)
   admin.html / .js      Página del administrador: todas las bodas
-  style.css             Colores y tipografías
+  style.css             Colores y tipografías (las letras se declaran aquí)
+  fonts/                Los archivos de las letras (Manrope y Plus Jakarta Sans) con su licencia
   dialog.js             Las ventanas de confirmación del panel (borrar, código nuevo)
   theme.js              El botón de modo claro y oscuro
   year.js               Pone el año en el pie de la página principal
@@ -242,8 +243,8 @@ celular. Un límite de pedidos por dirección queda pendiente para más adelante
 `public/_headers` lo lee Cloudflare Pages solo y agrega unas instrucciones a cada página: que nadie pueda
 mostrar JotaPG dentro de otro sitio (`X-Frame-Options`), que el navegador no adivine tipos de archivo, que se
 mande menos información al hacer clic en un enlace, y una lista de dónde puede cargar código la página
-(`Content-Security-Policy`): solo desde JotaPG, y las tipografías desde Google Fonts. Si algún día agregas algo
-que venga de otro sitio (un script, una tipografía, imágenes de afuera), la página lo va a bloquear hasta que
-lo agregues a esa lista. Por la misma razón las páginas no llevan scripts ni estilos escritos dentro del HTML:
+(`Content-Security-Policy`): todo viene solo de JotaPG, incluidas las tipografías (están en `public/fonts/`, no se
+piden a Google). Si algún día agregas algo que venga de otro sitio (un script, una tipografía, imágenes de afuera),
+la página lo va a bloquear hasta que lo agregues a esa lista. Por la misma razón las páginas no llevan scripts ni estilos escritos dentro del HTML:
 van en archivos aparte (por eso existe `year.js`). Si algo se ve roto después de un cambio, abre la consola del
 navegador (F12): el mensaje dice qué regla lo bloqueó.
