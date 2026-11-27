@@ -218,7 +218,7 @@ textarea { width: 100%; min-height: 140px; resize: vertical; }
 .row-form { display: grid; grid-template-columns: 2fr 0.8fr 1.1fr auto; gap: 12px; align-items: end; }
 .stack { display: grid; gap: 12px; }
 .row-form label, .stack label, dialog label { display: grid; gap: 4px; font-weight: 600; font-size: 0.9rem; }
-.row-form input, .row-form select, .stack input, dialog input, dialog select { width: 100%; }
+.row-form input, .row-form select, .stack input, .stack select, dialog input, dialog select { width: 100%; }
 
 .feedback { margin: 12px 0 0; min-height: 1.4em; }
 .feedback.ok { color: var(--verde); }

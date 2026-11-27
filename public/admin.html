@@ -41,6 +41,14 @@
         <label>Fecha y hora de la boda (opcional)
           <input id="new-date" type="datetime-local">
         </label>
+        <label>Cómo confirman los invitados
+          <select id="new-mode">
+            <option value="typed">Escriben su nombre y celular</option>
+            <option value="link">Cada invitado tiene su link personal</option>
+            <option value="both">Las dos formas (solo para la muestra)</option>
+          </select>
+        </label>
+        <p class="muted">Con el link personal, el invitado entra y solo responde: ya trae su nombre y sus pases. Lo puedes cambiar después en Editar.</p>
         <details>
           <summary>Opciones avanzadas</summary>
           <label>Nombre corto (opcional)
@@ -80,6 +88,13 @@
       </label>
       <label>Fecha y hora de la boda (opcional)
         <input id="edit-date" type="datetime-local">
+      </label>
+      <label>Cómo confirman los invitados
+        <select id="edit-mode">
+          <option value="typed">Escriben su nombre y celular</option>
+          <option value="link">Cada invitado tiene su link personal</option>
+          <option value="both">Las dos formas (solo para la muestra)</option>
+        </select>
       </label>
       <p id="edit-feedback" class="feedback bad" role="alert"></p>
       <div class="dialog-actions">

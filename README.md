@@ -43,12 +43,12 @@ functions/api/          La recepción (código que corre en Cloudflare)
   logout.js             Cierra la sesión
   rsvps.js              Devuelve los invitados de la pareja con su estado
   rsvp.js               Recibe la confirmación de un invitado (la usan las invitaciones)
-  guest-lookup.js       Busca a un invitado por su nombre (la usan las invitaciones)
+  guest-lookup.js       Busca a un invitado por su nombre o por el código de su link personal (la usan las invitaciones)
   guests/               Agregar, editar y borrar invitados (panel de la pareja y del administrador)
   admin/couples/        Crear, editar y borrar bodas (solo administrador)
 lib/session.js          Crea y revisa la cookie de sesión (pareja o administrador)
 lib/auth.js             Decide quién pide algo y de qué boda se trata
-lib/invite-api.js       Lo que comparten rsvp.js y guest-lookup.js (permisos y búsqueda por nombre)
+lib/invite-api.js       Lo que comparten rsvp.js y guest-lookup.js (permisos, búsqueda por nombre y por código del link)
 lib/guests.js           Reglas de los invitados (nombre y apellido, pases, celular, sin repetidos)
 lib/couples.js          Códigos de acceso, nombres cortos y direcciones de las bodas
 lib/turnstile.js        Le pregunta a Cloudflare si la verificación anti-spam de una confirmación es verdadera
@@ -165,6 +165,7 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/003-celular-complet
 npx wrangler d1 execute jotapg-db --remote --file=migrations/004-fecha-de-la-boda.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/005-bloqueo-por-intentos.sql
 npx wrangler d1 execute jotapg-db --remote --file=migrations/006-limite-de-entradas.sql
+npx wrangler d1 execute jotapg-db --remote --file=migrations/007-link-personal.sql
 ```
 
 - La `001` crea la lista de invitados y carga dos de la muestra (`muestra-3`, la boda de la invitación de ejemplo).
@@ -174,6 +175,7 @@ npx wrangler d1 execute jotapg-db --remote --file=migrations/006-limite-de-entra
 - La `004` agrega la fecha de la boda, que se escribe en /admin y alimenta la cuenta regresiva del panel.
 - La `005` crea la tabla del bloqueo por celulares equivocados (anti-spam).
 - La `006` crea la tabla del límite de intentos al entrar (`/login`).
+- La `007` agrega el modo de confirmación de cada boda (`couples.rsvp_mode`: `typed`, `link` o `both`) y un código privado por invitado (`guests.guest_code`) para su link personal. Las bodas que ya existen quedan en `typed`, como siempre, y a los invitados que ya existen se les crea su código.
 
 También se pueden pegar en la consola de `jotapg-db` en Cloudflare, una por una.
 
@@ -233,6 +235,12 @@ Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
   10 por widget y 20 widgets.
 - **Bloqueo:** tras 5 celulares equivocados para un mismo invitado, ese invitado queda bloqueado 15 minutos
   (`lib/attempts.js`, tabla `rsvp_attempts`, migración 005). Una confirmación correcta borra los intentos.
+
+- **Cómo confirman los invitados (por boda, se elige en `/admin`):** `typed` (escriben su nombre y celular, como siempre),
+  `link` (cada invitado entra con su link personal `…/?g=código`; no escribe nada y no se acepta nombre y celular) o
+  `both` (las dos formas; solo para la invitación de muestra). El código es privado, de 16 letras y números al azar
+  (`guests.guest_code`, migración 007), y el botón de WhatsApp del panel manda ese link en las bodas `link` y `both`.
+  En una boda `link` la búsqueda por nombre no devuelve nada, así nadie puede probar nombres.
 
 La búsqueda de nombre (`/api/guest-lookup`) todavía no exige Turnstile: se pregunta en cada pausa al escribir
 y el token sirve una sola vez. Lo que sí hace es exigir dos palabras de 3 letras o más y no devolver nunca el

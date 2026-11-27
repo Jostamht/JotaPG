@@ -8,6 +8,7 @@ import { resolveInvite } from "../../../lib/auth.js";
 import {
   cleanGuest,
   findDuplicate,
+  insertGuests,
   listGuests,
   MAX_GUESTS_PER_WEDDING,
   MAX_PER_REQUEST,
@@ -55,13 +56,7 @@ export async function onRequestPost({ request, env }) {
   });
 
   for (let i = 0; i < toInsert.length; i += CHUNK) {
-    await env.DB.batch(
-      toInsert.slice(i, i + CHUNK).map((g) =>
-        env.DB
-          .prepare("INSERT INTO guests (invite_id, name, passes, phone) VALUES (?, ?, ?, ?)")
-          .bind(couple.invite_id, g.name, g.passes, g.phone)
-      )
-    );
+    await insertGuests(env, couple.invite_id, toInsert.slice(i, i + CHUNK));
   }
 
   return jsonResponse({ added: toInsert.length, failed }, toInsert.length > 0 ? 201 : 200);

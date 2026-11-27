@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS couples (
   allowed_origin TEXT NOT NULL,          -- dirección de su invitación, ej. "https://juancarlos.pages.dev"
   access_code    TEXT NOT NULL UNIQUE,   -- el código con el que entran a su panel
   wedding_date   TEXT,                   -- fecha y hora de la boda, ej. "2026-12-12T16:00" (opcional)
+  rsvp_mode      TEXT NOT NULL DEFAULT 'typed' CHECK (rsvp_mode IN ('typed', 'link', 'both')),
+                                         -- cómo confirman: typed = escriben nombre y celular, link = link personal, both = las dos (solo para la muestra)
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -23,11 +25,13 @@ CREATE TABLE IF NOT EXISTS guests (
   name        TEXT NOT NULL,                                -- como aparece en su invitación
   passes      INTEGER NOT NULL DEFAULT 1 CHECK (passes BETWEEN 1 AND 10),  -- pases disponibles
   phone       TEXT NOT NULL CHECK (length(phone) BETWEEN 4 AND 20),        -- celular completo, solo dígitos
+  guest_code  TEXT,                                             -- código privado para su link personal (16 letras/números al azar)
   created_at  TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE (invite_id, name)
 );
 
 CREATE INDEX IF NOT EXISTS idx_guests_invite ON guests(invite_id);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_guests_code ON guests(guest_code);
 
 -- Lista 3: las respuestas de los invitados
 CREATE TABLE IF NOT EXISTS rsvps (

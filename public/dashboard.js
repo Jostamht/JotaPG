@@ -28,6 +28,8 @@ let invitados = [];
 let enlaceInvitacion = "";
 let nombresPareja = "";
 let idBoda = "";
+let modoConfirmacion = "typed"; // cómo confirman los invitados de esta boda: typed, link o both
+let whatsappListo = false;
 
 // --- Pedidos al servidor -------------------------------------------------
 
@@ -105,7 +107,27 @@ function notas(g) {
 const MENSAJE_ORIGINAL =
   "¡Hola {nombre}! Con mucho cariño te invitamos a nuestra boda. Aquí está tu invitación: {enlace}\n\n" +
   "Para confirmar tu asistencia, escribe tu nombre y tu número de celular completo.\n\n{pareja}";
+// Para las bodas con link personal: el invitado no escribe nada, el link ya lo identifica.
+const MENSAJE_LINK_ORIGINAL =
+  "¡Hola {nombre}! Con mucho cariño te invitamos a nuestra boda. Esta es tu invitación personal: {enlace}\n\n" +
+  "Ahí mismo puedes confirmar tu asistencia, sin escribir nada más.\n\n{pareja}";
 const CODIGO_ORIGINAL = "591";
+
+// Con link personal (boda "link" o "both") el mensaje de cada invitado lleva SU link; si no,
+// lleva el link general de la invitación. Cada forma guarda su propio mensaje en este navegador.
+function conLinkPersonal() {
+  return modoConfirmacion === "link" || modoConfirmacion === "both";
+}
+function mensajeOriginal() {
+  return conLinkPersonal() ? MENSAJE_LINK_ORIGINAL : MENSAJE_ORIGINAL;
+}
+function claveMensaje() {
+  return conLinkPersonal() ? "jp-wa-mensaje-link" : "jp-wa-mensaje";
+}
+function enlaceDe(g) {
+  if (conLinkPersonal() && g.guest_code) return `${enlaceInvitacion}/?g=${encodeURIComponent(g.guest_code)}`;
+  return enlaceInvitacion;
+}
 
 function guardado(clave, porDefecto) {
   try {
@@ -143,7 +165,7 @@ function mensajePara(g) {
   return document
     .getElementById("wa-message")
     .value.replaceAll("{nombre}", primerNombre)
-    .replaceAll("{enlace}", enlaceInvitacion)
+    .replaceAll("{enlace}", enlaceDe(g))
     .replaceAll("{pareja}", nombresPareja);
 }
 
@@ -176,10 +198,10 @@ function botonWhatsApp(g) {
 function prepararWhatsApp() {
   const mensaje = document.getElementById("wa-message");
   const pais = document.getElementById("wa-country");
-  mensaje.value = guardado("jp-wa-mensaje", MENSAJE_ORIGINAL);
+  mensaje.value = guardado(claveMensaje(), mensajeOriginal());
   pais.value = guardado("jp-wa-pais", CODIGO_ORIGINAL);
   mensaje.addEventListener("input", () => {
-    guardar("jp-wa-mensaje", mensaje.value);
+    guardar(claveMensaje(), mensaje.value);
     dibujarTabla();
   });
   pais.addEventListener("input", () => {
@@ -188,8 +210,8 @@ function prepararWhatsApp() {
     dibujarTabla();
   });
   document.getElementById("wa-reset").addEventListener("click", () => {
-    mensaje.value = MENSAJE_ORIGINAL;
-    guardar("jp-wa-mensaje", MENSAJE_ORIGINAL);
+    mensaje.value = mensajeOriginal();
+    guardar(claveMensaje(), mensajeOriginal());
     dibujarTabla();
   });
 }
@@ -422,6 +444,14 @@ async function cargar() {
   enlaceInvitacion = datos.invite_url;
   nombresPareja = names;
   idBoda = datos.invite_id;
+  modoConfirmacion = datos.rsvp_mode || "typed";
+
+  // El mensaje de WhatsApp depende del modo de la boda, así que se prepara con el primer dato que llega.
+  if (!whatsappListo) {
+    whatsappListo = true;
+    prepararWhatsApp();
+  }
+  document.getElementById("wa-link-note").hidden = !conLinkPersonal();
 
   document.getElementById("title").textContent = names;
   prepararCuentaRegresiva(datos.wedding_date);
@@ -662,5 +692,4 @@ document.getElementById("logout").addEventListener("click", async () => {
 });
 
 llenarPases(document.getElementById("add-passes"), 1);
-prepararWhatsApp();
 cargar();

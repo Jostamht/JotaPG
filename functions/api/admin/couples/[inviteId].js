@@ -1,11 +1,12 @@
-// PUT    /api/admin/couples/:inviteId — cambia los nombres o la dirección de la invitación,
+// PUT    /api/admin/couples/:inviteId — cambia los nombres, la dirección, la fecha o el modo de confirmación
+//                                       de la invitación (rsvp_mode: "typed", "link" o "both"),
 //                                       o crea un código de acceso nuevo ({ "regenerate_code": true }).
 // DELETE /api/admin/couples/:inviteId — borra la boda con todos sus invitados y respuestas.
 // Solo para el administrador.
 
 import { jsonResponse } from "../../../../lib/session.js";
 import { requireAdmin } from "../../../../lib/auth.js";
-import { normalizeOrigin, freeAccessCode, parseWeddingDate } from "../../../../lib/couples.js";
+import { normalizeOrigin, freeAccessCode, parseWeddingDate, parseRsvpMode } from "../../../../lib/couples.js";
 import { forgetWedding } from "../../../../lib/attempts.js";
 
 export async function onRequestPut({ request, env, params }) {
@@ -31,6 +32,8 @@ export async function onRequestPut({ request, env, params }) {
   let code = couple.access_code;
   let date = couple.wedding_date ?? null;
   const dateChanged = data.wedding_date !== undefined;
+  let mode = couple.rsvp_mode || "typed";
+  const modeChanged = data.rsvp_mode !== undefined;
 
   if (data.names !== undefined) {
     names = String(data.names).trim().replace(/\s+/g, " ");
@@ -53,6 +56,12 @@ export async function onRequestPut({ request, env, params }) {
     date = parsed.value;
   }
 
+  if (modeChanged) {
+    const parsed = parseRsvpMode(data.rsvp_mode);
+    if (!parsed) return jsonResponse({ error: "invalid_mode" }, 400);
+    mode = parsed;
+  }
+
   if (data.regenerate_code === true) code = await freeAccessCode(env);
 
   await env.DB
@@ -72,12 +81,26 @@ export async function onRequestPut({ request, env, params }) {
     }
   }
 
+  // El modo también va aparte: si falta la migración 007, lo demás se guarda y se avisa.
+  // Si no cambió, no se toca (así una boda sigue guardándose aunque la migración no esté).
+  if (modeChanged && mode !== (couple.rsvp_mode || "typed")) {
+    try {
+      await env.DB
+        .prepare("UPDATE couples SET rsvp_mode = ? WHERE invite_id = ?")
+        .bind(mode, inviteId)
+        .run();
+    } catch {
+      return jsonResponse({ error: "mode_migration_needed" }, 500);
+    }
+  }
+
   return jsonResponse({
     invite_id: inviteId,
     names,
     allowed_origin: origin,
     access_code: code,
     wedding_date: date,
+    rsvp_mode: mode,
   });
 }
 

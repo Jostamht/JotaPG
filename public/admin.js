@@ -11,6 +11,14 @@ const MENSAJES = {
   forbidden: "No tienes permiso para hacer eso.",
   invalid_date: "La fecha no es válida. Elígela de nuevo.",
   migration_needed: "Para guardar la fecha hay que correr una vez la migración 004 en la base de datos (está en el README).",
+  mode_migration_needed: "Para elegir cómo confirman los invitados hay que correr una vez la migración 007 en la base de datos (está en el README).",
+  invalid_mode: "Elige una de las formas de confirmar de la lista.",
+};
+
+const MODOS = {
+  typed: "escriben su nombre y celular",
+  link: "link personal para cada invitado",
+  both: "las dos formas (muestra)",
 };
 const GENERICO = "Algo salió mal. Inténtalo otra vez en un momento.";
 
@@ -139,6 +147,7 @@ function tarjeta(boda) {
   caja.appendChild(direccion);
 
   if (boda.wedding_date) caja.appendChild(texto("p", "meta", "Fecha de la boda: " + fechaLinda(boda.wedding_date)));
+  caja.appendChild(texto("p", "meta", "Confirmación: " + (MODOS[boda.rsvp_mode] || MODOS.typed)));
 
   caja.appendChild(
     texto(
@@ -213,6 +222,7 @@ document.getElementById("new-form").addEventListener("submit", async (event) => 
     allowed_origin: document.getElementById("new-origin").value,
     invite_id: document.getElementById("new-id").value,
     wedding_date: document.getElementById("new-date").value,
+    rsvp_mode: document.getElementById("new-mode").value,
   });
   crear.disabled = false;
 
@@ -224,6 +234,9 @@ document.getElementById("new-form").addEventListener("submit", async (event) => 
   event.target.reset();
   mostrarResultado(datos);
   if (datos.date_error) error.textContent = "La boda se creó, pero no se guardó la fecha. " + mensajeDe({ error: datos.date_error });
+  if (datos.mode_error) {
+    error.textContent += (error.textContent ? " " : "") + "La boda se creó, pero quedó con nombre y celular. " + mensajeDe({ error: datos.mode_error });
+  }
   cargar();
 });
 
@@ -239,6 +252,17 @@ function mostrarResultado(boda) {
 
   caja.appendChild(texto("p", "", "En el archivo invite.js de su invitación, deja estas tres líneas:"));
   caja.appendChild(texto("pre", "snippet", configuracionDeLaInvitacion(boda.invite_id)));
+
+  if (boda.rsvp_mode === "link" || boda.rsvp_mode === "both") {
+    caja.appendChild(
+      texto(
+        "p",
+        "",
+        "Cada invitado tendrá su link personal. Lo mandas con el botón verde de WhatsApp de la lista de invitados: " +
+          "ya lleva su link, y al abrirlo la invitación lo saluda por su nombre y muestra sus pases."
+      )
+    );
+  }
 
   // Sin este paso la verificación anti-spam no arranca en esa invitación y nadie podría confirmar.
   const host = direccionParaTurnstile(boda);
@@ -292,6 +316,7 @@ function abrirEdicion(boda) {
   document.getElementById("edit-names").value = boda.names;
   document.getElementById("edit-origin").value = boda.allowed_origin;
   document.getElementById("edit-date").value = boda.wedding_date || "";
+  document.getElementById("edit-mode").value = boda.rsvp_mode || "typed";
   document.getElementById("edit-feedback").textContent = "";
   dialogo.showModal();
 }
@@ -309,6 +334,7 @@ document.getElementById("edit-form").addEventListener("submit", async (event) =>
     names: document.getElementById("edit-names").value,
     allowed_origin: document.getElementById("edit-origin").value,
     wedding_date: document.getElementById("edit-date").value,
+    rsvp_mode: document.getElementById("edit-mode").value,
   });
   guardar.disabled = false;
 

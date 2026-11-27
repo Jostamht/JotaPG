@@ -11,6 +11,7 @@ import {
   freeAccessCode,
   INVITE_ID_PATTERN,
   parseWeddingDate,
+  parseRsvpMode,
 } from "../../../../lib/couples.js";
 
 export async function onRequestGet({ request, env }) {
@@ -35,6 +36,7 @@ export async function onRequestGet({ request, env }) {
   const couples = results.map(({ id, ...c }) => ({
     ...c,
     wedding_date: c.wedding_date ?? null,
+    rsvp_mode: c.rsvp_mode || "typed",
     pending: c.guests - c.confirmed - c.declined,
   }));
   return jsonResponse({ couples });
@@ -59,6 +61,10 @@ export async function onRequestPost({ request, env }) {
 
   const date = parseWeddingDate(data.wedding_date);
   if (!date) return jsonResponse({ error: "invalid_date" }, 400);
+
+  // Cómo van a confirmar los invitados. Sin elegir, es "typed" (nombre y celular), como siempre.
+  const mode = data.rsvp_mode === undefined ? "typed" : parseRsvpMode(data.rsvp_mode);
+  if (!mode) return jsonResponse({ error: "invalid_mode" }, 400);
 
   const originTaken = await env.DB
     .prepare("SELECT 1 FROM couples WHERE allowed_origin = ?")
@@ -97,6 +103,20 @@ export async function onRequestPost({ request, env }) {
     }
   }
 
+  // El modo va aparte, igual que la fecha: "typed" es el valor de fábrica y no necesita escribirse;
+  // otro modo necesita la migración 007. Si falta, la boda se crea igual (como "typed") y se avisa.
+  let modeSaved = true;
+  if (mode !== "typed") {
+    try {
+      await env.DB
+        .prepare("UPDATE couples SET rsvp_mode = ? WHERE invite_id = ?")
+        .bind(mode, inviteId)
+        .run();
+    } catch {
+      modeSaved = false;
+    }
+  }
+
   return jsonResponse(
     {
       invite_id: inviteId,
@@ -104,7 +124,9 @@ export async function onRequestPost({ request, env }) {
       allowed_origin: origin,
       access_code: accessCode,
       wedding_date: dateSaved ? date.value : null,
+      rsvp_mode: modeSaved ? mode : "typed",
       ...(dateSaved ? {} : { date_error: "migration_needed" }),
+      ...(modeSaved ? {} : { mode_error: "mode_migration_needed" }),
     },
     201
   );
