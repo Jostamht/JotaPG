@@ -239,7 +239,7 @@ Dos protecciones en la confirmación de asistencia (`/api/rsvp`):
 - **Cómo confirman los invitados (por boda, se elige en `/admin`):** `typed` (escriben su nombre y celular, como siempre),
   `link` (cada invitado entra con su link personal `…/?g=código`; no escribe nada y no se acepta nombre y celular) o
   `both` (las dos formas; solo para la invitación de muestra). El código es privado, de 16 letras y números al azar
-  (`guests.guest_code`, migración 007), y el botón de WhatsApp del panel manda ese link en las bodas `link` y `both`.
+  (`guests.guest_code`, migración 007), y el botón de WhatsApp del panel manda ese link en las bodas `link` y `both`, y cada invitado tiene un botón «Copiar link» para copiarlo.
   En una boda `link` la búsqueda por nombre no devuelve nada, así nadie puede probar nombres.
 
 La búsqueda de nombre (`/api/guest-lookup`) todavía no exige Turnstile: se pregunta en cada pausa al escribir

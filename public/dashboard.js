@@ -195,6 +195,29 @@ function botonWhatsApp(g) {
   return a;
 }
 
+// Botón "Copiar link": copia el link personal de ese invitado (solo en bodas con link personal).
+function botonCopiarLink(g) {
+  if (!conLinkPersonal() || !g.guest_code) return null;
+  return boton(
+    "Copiar link",
+    "btn-ghost",
+    async (evento) => {
+      const enlace = enlaceDe(g);
+      const b = evento.currentTarget;
+      try {
+        await navigator.clipboard.writeText(enlace);
+        const antes = b.textContent;
+        b.textContent = "✓ Copiado";
+        setTimeout(() => { b.textContent = antes; }, 2000);
+      } catch {
+        // Si el navegador no deja copiar solo, se muestra el link para copiarlo a mano.
+        await mostrarTexto("Copia el link de " + g.name, enlace);
+      }
+    },
+    "Copiar el link personal de " + g.name
+  );
+}
+
 function prepararWhatsApp() {
   const mensaje = document.getElementById("wa-message");
   const pais = document.getElementById("wa-country");
@@ -246,6 +269,8 @@ function dibujarTabla() {
     acciones.className = "actions";
     const wa = botonWhatsApp(g);
     if (wa) acciones.appendChild(wa);
+    const copiarLink = botonCopiarLink(g);
+    if (copiarLink) acciones.appendChild(copiarLink);
     acciones.appendChild(boton("Editar", "btn-ghost", () => abrirEdicion(g), "Editar a " + g.name));
     acciones.appendChild(boton("Eliminar", "btn-danger", () => eliminar(g), "Eliminar a " + g.name));
     fila.appendChild(acciones);
