@@ -265,12 +265,24 @@ dialog h2 { margin-top: 0; }
 .banner a { color: var(--violeta); font-weight: 600; text-decoration: none; }
 
 /* Bodas (página de administración) */
-.wedding { border: 1px solid var(--linea); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
-.wedding h3 { margin: 0 0 2px; font-size: 1.15rem; }
+.wedding {
+  border: 1px solid var(--linea); border-radius: 12px; padding: 20px; margin-bottom: 16px;
+  /* Dos columnas: el título a la izquierda y "Eliminar" en la esquina de arriba a la derecha; lo demás ocupa todo el ancho. */
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: start;
+}
+.wedding > * { grid-column: 1 / -1; }
+.wedding > h3 { grid-column: 1; grid-row: 1; }
+.wedding > .btn-corner { grid-column: 2; grid-row: 1; justify-self: end; }
+.wedding h3 { margin: 0 0 2px; font-size: 1.15rem; overflow-wrap: anywhere; }
 .wedding .meta { color: var(--gris); font-size: 0.9rem; margin: 0; word-break: break-all; }
 .wedding .stats { margin: 12px 0 0; }
 .wedding .code-line { margin: 12px 0 0; }
-.wedding .buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+/* Botones en tres niveles: principal, copiar y ajustes. */
+.wedding .wedding-actions { display: grid; gap: 14px; margin-top: 16px; }
+.wedding .main-action { padding: 10px 16px; font-size: 0.95rem; text-align: center; }
+.wedding .wedding-group { border-top: 1px solid var(--linea); padding-top: 12px; }
+.wedding .group-label { margin: 0 0 8px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gris); }
+.wedding .buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .code { font-family: ui-monospace, "SFMono-Regular", Menlo, monospace; background: var(--violeta-claro); padding: 2px 8px; border-radius: 6px; }
 .snippet {
   background: var(--codigo-fondo); color: var(--codigo-texto); padding: 14px; border-radius: 8px;

@@ -110,6 +110,20 @@ function boton(texto, clases, alHacerClic) {
   return b;
 }
 
+// Un grupo de botones con su rótulo chico arriba.
+function grupoDeBotones(rotulo, botones) {
+  const grupo = document.createElement("div");
+  grupo.className = "wedding-group";
+  grupo.setAttribute("role", "group");
+  grupo.setAttribute("aria-label", rotulo);
+  grupo.appendChild(texto("p", "group-label", rotulo));
+  const fila = document.createElement("div");
+  fila.className = "buttons";
+  fila.append(...botones);
+  grupo.appendChild(fila);
+  return grupo;
+}
+
 function texto(etiqueta, clase, contenido) {
   const el = document.createElement(etiqueta);
   if (clase) el.className = clase;
@@ -164,36 +178,43 @@ function tarjeta(boda) {
   linea.append(document.createTextNode("Código de la pareja: "), texto("span", "code", boda.access_code));
   caja.appendChild(linea);
 
-  const botones = document.createElement("div");
-  botones.className = "buttons";
+  // Los botones van en tres niveles: el principal (ancho), los de copiar y los de ajustes.
+  // "Eliminar" va aparte y al final del todo; el estilo lo pone en la esquina de arriba a la derecha.
+  const acciones = document.createElement("div");
+  acciones.className = "wedding-actions";
 
   const administrar = document.createElement("a");
-  administrar.className = "btn-small";
+  administrar.className = "btn-small main-action";
   administrar.href = "/dashboard?c=" + encodeURIComponent(boda.invite_id);
   administrar.textContent = "Administrar invitados";
-  botones.appendChild(administrar);
+  acciones.appendChild(administrar);
 
-  botones.appendChild(
+  const copiarBotones = [
     boton("Copiar mensaje para la pareja", "btn-ghost", () =>
       copiar(mensajeParaLaPareja(boda), "mensaje para la pareja")
-    )
-  );
-  botones.appendChild(
+    ),
     boton("Copiar datos de la invitación", "btn-ghost", () =>
       copiar(configuracionDeLaInvitacion(boda.invite_id), "datos para invite.js")
-    )
-  );
+    ),
+  ];
   if (direccionParaTurnstile(boda)) {
-    botones.appendChild(
+    copiarBotones.push(
       boton("Copiar dirección para Turnstile", "btn-ghost", () =>
         copiar(direccionParaTurnstile(boda), "dirección para Turnstile")
       )
     );
   }
-  botones.appendChild(boton("Editar", "btn-ghost", () => abrirEdicion(boda)));
-  botones.appendChild(boton("Código nuevo", "btn-ghost", () => codigoNuevo(boda)));
-  botones.appendChild(boton("Eliminar", "btn-danger", () => eliminar(boda)));
-  caja.appendChild(botones);
+  acciones.appendChild(grupoDeBotones("Para copiar", copiarBotones));
+
+  acciones.appendChild(
+    grupoDeBotones("Ajustes de la boda", [
+      boton("Editar", "btn-ghost", () => abrirEdicion(boda)),
+      boton("Código nuevo", "btn-ghost", () => codigoNuevo(boda)),
+    ])
+  );
+  caja.appendChild(acciones);
+
+  caja.appendChild(boton("Eliminar", "btn-danger btn-corner", () => eliminar(boda)));
 
   return caja;
 }
